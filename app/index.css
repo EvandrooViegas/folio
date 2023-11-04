@@ -1,0 +1,14 @@
+
+.font-paytone {
+    font-family: 'Dela Gothic One', sans-serif;
+  }
+  .max-app-width {
+    max-width: 1500px;
+  }
+.z-nav {
+  z-index: 100;
+}
+  .hero-bg {
+    background: rgb(255,255,255);
+background: linear-gradient(0, rgba(255,255,255,1) 77%, rgba(186,186,186,1) 100%);
+  }
