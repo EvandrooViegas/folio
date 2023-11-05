@@ -12,27 +12,30 @@ export interface Database {
       users: {
         Row: {
           created_at: string
-          email: Json 
+          email: string
           id: string
-          plan: string 
+          plan: string
           profile_avatar: string
-          updated_at: string 
+          updated_at: string | null
+          username: string
         }
         Insert: {
           created_at?: string
-          email?: Json | null
+          email: string
           id?: string
-          plan?: string | null
-          profile_avatar?: string | null
+          plan: string
+          profile_avatar: string
           updated_at?: string | null
+          username: string
         }
         Update: {
           created_at?: string
-          email?: Json | null
+          email?: string
           id?: string
-          plan?: string | null
-          profile_avatar?: string | null
+          plan?: string
+          profile_avatar?: string
           updated_at?: string | null
+          username?: string
         }
         Relationships: []
       }

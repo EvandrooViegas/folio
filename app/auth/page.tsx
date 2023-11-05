@@ -1,8 +1,7 @@
-import AuthButton from '@/components/global/AuthButton'
-import React from 'react'
+import AuthWrapper from "./components/AuthWrapper";
 
 export default function page() {
   return (
-    <AuthButton />
-  )
+      <AuthWrapper />
+    )
 }

@@ -1,4 +1,4 @@
-import Section from '@/components/Section/section.index'
+import Section from '@/app/(Home)/Section/section.index'
 import React from 'react'
 
 export default function About() {

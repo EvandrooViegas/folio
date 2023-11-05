@@ -8,6 +8,12 @@
 .z-nav {
   z-index: 100;
 }
+
+.f-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
   .hero-bg {
     background: rgb(255,255,255);
 background: linear-gradient(0, rgba(255,255,255,1) 77%, rgba(186,186,186,1) 100%);

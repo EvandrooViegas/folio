@@ -1,4 +1,4 @@
-import Section from "@/components/Section/section.index";
+import Section from "@/app/(Home)/Section/section.index";
 import image from "../../image.jpg";
 import Image from "next/image";
 export default function Hero() {
