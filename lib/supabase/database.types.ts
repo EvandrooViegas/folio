@@ -15,6 +15,7 @@ export interface Database {
           email: string
           id: string
           plan: string
+          pretended_plan: string | null
           profile_avatar: string
           updated_at: string | null
           username: string
@@ -24,6 +25,7 @@ export interface Database {
           email: string
           id?: string
           plan: string
+          pretended_plan?: string | null
           profile_avatar: string
           updated_at?: string | null
           username: string
@@ -33,6 +35,7 @@ export interface Database {
           email?: string
           id?: string
           plan?: string
+          pretended_plan?: string | null
           profile_avatar?: string
           updated_at?: string | null
           username?: string

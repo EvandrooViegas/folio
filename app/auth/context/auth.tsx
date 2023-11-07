@@ -1,9 +1,12 @@
-import { iNewUser } from "@/types/iUser";
+import type {  Plan as IPlan , iNewUser } from "@/types/iUser";
 import { createContext, useContext, useState } from "react";
 import OAuth from "../components/steps/OAuth";
 import Plan from "../components/steps/Plan";
 import Username from "../components/steps/Username";
-
+import { useRouter } from "next/navigation"
+import { newSubscription } from "@/services/stripe";
+import { toast } from "@/components/ui/use-toast";
+import { createUser } from "@/services/user";
 const authSteps = [OAuth, Username, Plan];
 
 type Context = {
@@ -17,7 +20,8 @@ type Context = {
   isLoading: boolean
   setIsLoading: (b: boolean) => void
   setCanChangeStep: (b: boolean) => void
-  canChangeStep: boolean
+  canChangeStep: boolean,
+  complete: () => void
 };
 
 const AuthContext = createContext<Context>({} as Context);
@@ -26,7 +30,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [newUser, setNewUser] = useState<Partial<iNewUser>>({} as iNewUser);
   const [canChangeStep, setCanChangeStep] = useState(false)
   const [authStep, setAuthStep] = useState(0);
-    const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+
   const nextStep = () => {
     setCanChangeStep(false)
     setAuthStep((n) => n + 1);
@@ -37,7 +43,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   const hasNextStep = !(authStep >= authSteps.length - 1);
   const hasPrevStep = !(authStep <= 0);
-  console.log(authStep)
+  const complete = async () => {
+    setIsLoading(true)
+    const nUser = await createUser(newUser as iNewUser)
+    if (newUser.plan != "default") {
+      localStorage.setItem("user", nUser?.id || "")
+      const sessionURL = await newSubscription(newUser.plan as IPlan)
+      if(!sessionURL) {
+        return toast({
+          title: "Someting went wrong",
+          variant: "destructive"
+        })
+      }
+      location.replace(sessionURL)
+    }
+    setIsLoading(false)
+
+  }
   const CurrentStep = authSteps[authStep];
 
   return (
@@ -45,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         newUser,
         setNewUser,
+        complete,
         nextStep,
         prevStep,
         hasNextStep,

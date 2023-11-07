@@ -8,7 +8,6 @@ import { createAuthJWT, readAuthJWT } from "./token";
 import { iNewUser, iUser } from "@/types/iUser";
 
 
-const protectedRoutes = ["/dashboard"]
 
 const getUserByAttr = async (attr: keyof iUser = "id", value: any)
 :Promise<iUser | null | undefined> => {
@@ -22,9 +21,25 @@ export const getUserByEmail = async (email: string) => {
   return usr
 }
 
+export const getUserByID = async (id: string) => {
+  const usr = getUserByAttr("id", id)
+  return usr
+}
+
+export const createUser = async (usr: iNewUser) => {
+  const supabase = createServerActionClient<Database>({ cookies }, { supabaseKey: env.supabaseKey, supabaseUrl: env.supabaseUrl })
+  await supabase.from("users").insert(usr) 
+  const nUser = await getUserByAttr("username", usr.username)
+  return nUser
+}
+
+export const updateUser = async (usrID: string, nUser: iUser) => {
+  const supabase = createServerActionClient<Database>({ cookies }, { supabaseKey: env.supabaseKey, supabaseUrl: env.supabaseUrl })
+  await supabase.from("users").update(nUser).eq("id", usrID)
+}
+
+
 export const userExists = async (attr: keyof iUser = "id", value: any) => {
   const usr = await getUserByAttr(attr, value)
   return Boolean(usr)
 }
-
-

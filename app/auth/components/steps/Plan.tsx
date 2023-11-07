@@ -21,16 +21,16 @@ const plans = [
 ] as AuthPlan[]
 
 export default function Plan() {
-  const { setNewUser, newUser  } = useAuthContext()
+  const { setNewUser, newUser, complete  } = useAuthContext()
   const onPlanSelection = (plan: AuthPlan) => {
     setNewUser({
       ...newUser,
-      plan: plan.plan
+      pretended_plan: plan.plan
     })
   }
 
-  const onClick = () => {
-    console.log(newUser)
+  const onClick = async () => {
+    await complete()
   }
   return (
     <div>
