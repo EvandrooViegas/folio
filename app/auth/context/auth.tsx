@@ -43,12 +43,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   const hasNextStep = !(authStep >= authSteps.length - 1);
   const hasPrevStep = !(authStep <= 0);
+
   const complete = async () => {
     setIsLoading(true)
+    console.log(newUser)
     const nUser = await createUser(newUser as iNewUser)
-    if (newUser.plan != "default") {
+    toast({
+      title: "Someting went wrong",
+      variant: "destructive"
+    })
+    console.log(nUser)
+    if (nUser?.pretended_plan != "default") {
       localStorage.setItem("user", nUser?.id || "")
-      const sessionURL = await newSubscription(newUser.plan as IPlan)
+      const sessionURL = await newSubscription(newUser.pretended_plan as IPlan)
+      console.log(sessionURL)
       if(!sessionURL) {
         return toast({
           title: "Someting went wrong",

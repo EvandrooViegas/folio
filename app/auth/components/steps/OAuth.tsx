@@ -5,19 +5,19 @@ import {
   createClientComponentClient,
 } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { PiSpinnerLight } from "react-icons/pi";
 import { useAuthContext } from "../../context/auth";
-import { useToast } from "@/components/ui/use-toast";
+
+import errorToast from "@/utils/errorToast";
 
 export default function OAuth() {
   const supabase = createClientComponentClient();
   const sessionUser = useRef<null | User>(null);
   const router = useRouter();
-  const { toast } = useToast();
 
-  const { nextStep, setNewUser, setIsLoading, isLoading, setCanChangeStep } =
+  const {  setNewUser, setIsLoading, isLoading, setCanChangeStep } =
     useAuthContext();
 
   const onClick = async () => {
@@ -35,17 +35,13 @@ export default function OAuth() {
       sessionUser.current = session?.data?.session?.user || null;
       const email = sessionUser.current?.email;
       const profileAvatar = sessionUser.current?.user_metadata.avatar_url;
-      if (!email) return;
+      if (!email) return errorToast()
       const usr = await getUserByEmail(email);
       const isNewUsr = !!!usr;
       await supabase.auth.signOut();
 
       if (!profileAvatar || !email) {
-        return toast({
-          title: "Something didn't go well",
-          variant: "destructive",
-          description: "Try again later",
-        });
+        return errorToast()
       }
       if (isNewUsr) {
         setNewUser({

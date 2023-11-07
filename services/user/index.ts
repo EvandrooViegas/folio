@@ -28,7 +28,10 @@ export const getUserByID = async (id: string) => {
 
 export const createUser = async (usr: iNewUser) => {
   const supabase = createServerActionClient<Database>({ cookies }, { supabaseKey: env.supabaseKey, supabaseUrl: env.supabaseUrl })
-  await supabase.from("users").insert(usr) 
+  await supabase.from("users").insert({
+    ...usr,
+    plan: "default",
+  }) 
   const nUser = await getUserByAttr("username", usr.username)
   return nUser
 }
