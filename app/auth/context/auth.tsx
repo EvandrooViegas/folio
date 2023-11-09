@@ -3,7 +3,6 @@ import { createContext, useContext, useState } from "react";
 import OAuth from "../components/steps/OAuth";
 import Plan from "../components/steps/Plan";
 import Username from "../components/steps/Username";
-import { useRouter } from "next/navigation"
 import { newSubscription } from "@/services/stripe";
 import { toast } from "@/components/ui/use-toast";
 import { createUser } from "@/services/user";
@@ -22,6 +21,8 @@ type Context = {
   setCanChangeStep: (b: boolean) => void
   canChangeStep: boolean,
   complete: () => void
+  totalSteps: number;
+  stepsCount: number;
 };
 
 const AuthContext = createContext<Context>({} as Context);
@@ -31,8 +32,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [canChangeStep, setCanChangeStep] = useState(false)
   const [authStep, setAuthStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
-
   const nextStep = () => {
     setCanChangeStep(false)
     setAuthStep((n) => n + 1);
@@ -43,6 +42,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   const hasNextStep = !(authStep >= authSteps.length - 1);
   const hasPrevStep = !(authStep <= 0);
+  const totalSteps = authSteps.length
+  const stepsCount = authStep + 1
 
   const complete = async () => {
     setIsLoading(true)
@@ -84,7 +85,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading,
         isLoading,
         canChangeStep,
-        setCanChangeStep
+        setCanChangeStep,
+        stepsCount,
+        totalSteps
       }}
     >
       {children}
