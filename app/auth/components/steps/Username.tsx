@@ -8,14 +8,13 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/use-toast"
+import { toast, useToast } from "@/components/ui/use-toast"
 import { userExists } from "@/services/user"
 import { useAuthContext } from "../../context/auth"
  
@@ -33,8 +32,7 @@ export default function Username() {
     },
   })
   const { setCanChangeStep, setIsLoading, isLoading, setNewUser, newUser } = useAuthContext()
- 
-  async function onSubmit (data: z.infer<typeof FormSchema>) {
+ async function onSubmit (data: z.infer<typeof FormSchema>) {
     setIsLoading(true)
   const username = data.username
     const exists = await userExists("username", username)
@@ -56,24 +54,20 @@ export default function Username() {
  
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-1 min-w-[300px]">
         <FormField
           control={form.control}
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="How would you like to be called?" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isLoading} >Submit</Button>
+        <Button type="submit" disabled={isLoading} size={"sm"} className="text-xs underline" variant={"link"}>Try it out</Button>
       </form>
     </Form>
   )

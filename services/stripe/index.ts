@@ -28,6 +28,5 @@ export async function newSubscription(plan: Plan | undefined) {
 export async function isCheckoutSessionComplete(sessionID: string | undefined ) {
     if(!sessionID) return
     const checkoutSession = await stripe.checkout.sessions.retrieve(sessionID)
-    console.log(checkoutSession)
     return checkoutSession.status === "complete"    
 }

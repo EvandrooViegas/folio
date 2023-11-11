@@ -4,8 +4,10 @@ import OAuth from "../components/steps/OAuth";
 import Plan from "../components/steps/Plan";
 import Username from "../components/steps/Username";
 import { newSubscription } from "@/services/stripe";
-import { toast } from "@/components/ui/use-toast";
 import { createUser } from "@/services/user";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+import errorToast from "@/utils/errorToast";
 const authSteps = [OAuth, Username, Plan];
 
 type Context = {
@@ -32,9 +34,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [canChangeStep, setCanChangeStep] = useState(false)
   const [authStep, setAuthStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false)
-  const nextStep = () => {
+  const router = useRouter()
+  const nextStep = async () => {
     setCanChangeStep(false)
-    setAuthStep((n) => n + 1);
+    if(authStep + 1 >= totalSteps) {
+      await complete()
+    } else {
+      setAuthStep((n) => n + 1);
+    }
   };
   const prevStep = () => {
     setCanChangeStep(false)
@@ -47,25 +54,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const complete = async () => {
     setIsLoading(true)
-    console.log(newUser)
     const nUser = await createUser(newUser as iNewUser)
-    toast({
-      title: "Someting went wrong",
-      variant: "destructive"
-    })
-    console.log(nUser)
     if (nUser?.pretended_plan != "default") {
       localStorage.setItem("user", nUser?.id || "")
       const sessionURL = await newSubscription(newUser.pretended_plan as IPlan)
-      console.log(sessionURL)
       if(!sessionURL) {
-        return toast({
-          title: "Someting went wrong",
-          variant: "destructive"
-        })
+        return errorToast()
       }
       location.replace(sessionURL)
     }
+    router.push("/dashboard")
     setIsLoading(false)
 
   }

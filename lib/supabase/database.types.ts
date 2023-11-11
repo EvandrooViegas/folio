@@ -15,9 +15,11 @@ export interface Database {
           email: string
           id: string
           plan: string
+          plan_end_date: string | null
+          plan_payment_date: string | null
           pretended_plan: string | null
           profile_avatar: string
-          updated_at: string | null
+          updated_at: string
           username: string
         }
         Insert: {
@@ -25,9 +27,11 @@ export interface Database {
           email: string
           id?: string
           plan: string
+          plan_end_date?: string | null
+          plan_payment_date?: string | null
           pretended_plan?: string | null
           profile_avatar: string
-          updated_at?: string | null
+          updated_at?: string
           username: string
         }
         Update: {
@@ -35,9 +39,11 @@ export interface Database {
           email?: string
           id?: string
           plan?: string
+          plan_end_date?: string | null
+          plan_payment_date?: string | null
           pretended_plan?: string | null
           profile_avatar?: string
-          updated_at?: string | null
+          updated_at?: string
           username?: string
         }
         Relationships: []
