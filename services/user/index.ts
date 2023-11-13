@@ -1,14 +1,14 @@
 "use server"
+
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import env from "../env";
-import { Provider } from "@supabase/supabase-js";
 import { Database } from "@/lib/supabase/database.types";
-import { createAuthJWT, readAuthJWT } from "./token";
 import { iNewUser, iUser } from "@/types/iUser";
+import { createAuthJWT, readAuthJWT } from "./token";
 
 
-
+const AUTH_JWT_COOKIE_NAME = "auth-jwt"
 const getUserByAttr = async (attr: keyof iUser = "id", value: any)
 :Promise<iUser | null | undefined> => {
   const supabase = createServerActionClient<Database>({ cookies }, { supabaseKey: env.supabaseKey, supabaseUrl: env.supabaseUrl })
@@ -45,4 +45,25 @@ export const updateUser = async (usrID: string, nUser: iUser) => {
 export const userExists = async (attr: keyof iUser = "id", value: any) => {
   const usr = await getUserByAttr(attr, value)
   return Boolean(usr)
+}
+
+export const storeAuthJWT = async (id: string | undefined) => {
+  const jwt = await createAuthJWT(id)
+  cookies().set({
+    name: AUTH_JWT_COOKIE_NAME,
+    value: jwt || "",
+  })
+}
+
+export const getUserByAuthJWT = async () => {
+    const jwt = cookies().get(AUTH_JWT_COOKIE_NAME)
+    const { id } = await readAuthJWT(jwt?.value) || {  }
+    if(!id) return 
+    const user = await getUserByID(id)
+  return user
+}
+
+export const getAuthedUser = async () => {
+  const user = await getUserByAuthJWT()
+  return user
 }

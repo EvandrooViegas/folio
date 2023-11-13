@@ -15,7 +15,7 @@ export default function OAuth() {
   const supabase = createClientComponentClient();
   const sessionUser = useRef<null | User>(null);
   const router = useRouter();
-  const {  setNewUser, setIsLoading, isLoading, setCanChangeStep } =
+  const {  setNewUser, setIsLoading, isLoading, setCanChangeStep, complete } =
     useAuthContext();
 
   const onClick = async () => {
@@ -47,7 +47,7 @@ export default function OAuth() {
         });
         setCanChangeStep(true);
       } else {
-        router.push("/dashboard");
+        complete({ isNewUsr: false, user: usr })
       }
     } catch (error) {
     } finally {
@@ -61,7 +61,7 @@ export default function OAuth() {
   return (
     <div className="flex justify-center flex-col gap-2 min-w-[300px]">
       <Button
-        disabled={isLoading}
+        isLoading={isLoading}
         variant={"outline"}
         className="flex gap-2 items-center text-lg"
         onClick={onClick}
@@ -70,11 +70,7 @@ export default function OAuth() {
         <span>
           <FcGoogle />
         </span>
-        {isLoading && (
-          <span className="animate-spin">
-            <PiSpinnerLight />
-          </span>
-        )}
+        
       </Button>
     </div>
   );

@@ -1,15 +1,15 @@
-import type {  Plan as IPlan , iNewUser } from "@/types/iUser";
+import type {  Plan as IPlan , iNewUser, iUser } from "@/types/iUser";
 import { createContext, useContext, useState } from "react";
 import OAuth from "../components/steps/OAuth";
 import Plan from "../components/steps/Plan";
 import Username from "../components/steps/Username";
 import { newSubscription } from "@/services/stripe";
-import { createUser } from "@/services/user";
+import { createUser, storeAuthJWT } from "@/services/user";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
 import errorToast from "@/utils/errorToast";
 const authSteps = [OAuth, Username, Plan];
 
+type CompleteData = { isNewUsr: boolean, user: iUser }
 type Context = {
   newUser: Partial<iNewUser>;
   setNewUser: (usr: Partial<iNewUser>) => void;
@@ -22,7 +22,7 @@ type Context = {
   setIsLoading: (b: boolean) => void
   setCanChangeStep: (b: boolean) => void
   canChangeStep: boolean,
-  complete: () => void
+  complete: (data?:CompleteData ) => void
   totalSteps: number;
   stepsCount: number;
 };
@@ -52,17 +52,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const totalSteps = authSteps.length
   const stepsCount = authStep + 1
 
-  const complete = async () => {
+  const complete = async (data?: CompleteData) => {
     setIsLoading(true)
-    const nUser = await createUser(newUser as iNewUser)
-    if (nUser?.pretended_plan != "default") {
-      localStorage.setItem("user", nUser?.id || "")
-      const sessionURL = await newSubscription(newUser.pretended_plan as IPlan)
-      if(!sessionURL) {
-        return errorToast()
+    const { isNewUsr, user} = data || {}
+    
+    let nUser 
+    if(isNewUsr) {
+      nUser = await createUser(newUser as iNewUser)
+      if (user?.pretended_plan != "default") {
+        localStorage.setItem("user", user?.id || "")
+        const sessionURL = await newSubscription(newUser.pretended_plan as IPlan)
+        if(!sessionURL) {
+          return errorToast()
+        }
+        location.replace(sessionURL)
       }
-      location.replace(sessionURL)
     }
+    storeAuthJWT(nUser?.id || user?.id)
     router.push("/dashboard")
     setIsLoading(false)
 

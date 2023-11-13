@@ -6,6 +6,7 @@ import * as jose from "jose"
 type AuthJWTClaims = {
   id: string
 } | undefined
+
 const createAuthJWT = async (id: string | undefined | null) => {
   if (!id) return;
   const secret = env.jwtSecret;
@@ -27,5 +28,6 @@ const readAuthJWT = async (token: string | undefined) => {
   const { payload } = await jose.jwtVerify(token, encodedSecret)
   return payload as AuthJWTClaims
 };
+
 
 export { createAuthJWT, readAuthJWT };

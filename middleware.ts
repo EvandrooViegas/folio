@@ -1,9 +1,12 @@
-
 import { NextRequest, NextResponse } from "next/server";
+import { authMiddleware } from "./middlewares/auth";
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-  return res
+  const canPass = await authMiddleware(req)
+  if(!canPass) {
+    return NextResponse.redirect(new URL("/auth", req.url))
+  } 
+  return NextResponse.next()
 }
 
 export const config = {

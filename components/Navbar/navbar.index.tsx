@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AuthButton from "../global/AuthButton";
+import { Button } from "../ui/button";
 
 export default async function Navbar() {
   return (
@@ -11,9 +12,14 @@ export default async function Navbar() {
           </span>
         </Link>
         <ul className="flex gap-3 items-center">
-            <Link href="/auth">
+        <Link href="/dashboard">
+          <Button variant="secondary">
+            Dashboard
+          </Button>
+          </Link>
+          <Link href="/auth">
             <AuthButton />
-            </Link>
+          </Link>
         </ul>
       </div>
     </nav>
