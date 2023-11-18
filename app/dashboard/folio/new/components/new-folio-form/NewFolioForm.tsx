@@ -91,7 +91,7 @@ export default function NewFolioForm() {
           <Button type="submit">Submit</Button>
         </form>
       </Form>
-          <NodeFormModal />
+      <NodeFormModal />
     </div>
   );
 }

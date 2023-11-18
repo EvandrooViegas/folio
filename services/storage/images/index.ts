@@ -1,13 +1,10 @@
-
-
 import supabase from "@/lib/supabase";
 import env from "@/services/env";
 import { getAuthedUser } from "@/services/user";
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
 
 const NODE_IMAGES_FOLDER = "node_images";
-const CDN_URL = `${env.supabaseUrl}/storage/v1/object/public/${NODE_IMAGES_FOLDER}`;
+const CDN_URL = `${env.supabaseUrl}/storage/v1/object/public`;
+const BUCKET_URL = `${CDN_URL}/${NODE_IMAGES_FOLDER}`;
 
 export async function uploadNodeImage(image: File) {
   const ext = (image?.name as string).split(".")[1];
@@ -15,11 +12,29 @@ export async function uploadNodeImage(image: File) {
   if (!user) return;
   const name = `${user.id}/${crypto.randomUUID()}.${ext}`;
   const { data } = await supabase.storage
-    .from("node_images")
+    .from(NODE_IMAGES_FOLDER)
     .upload(name, image);
 
   const path = data?.path;
   if (!path) return;
 
-  return `${CDN_URL}/${name}`;
+  return `${BUCKET_URL}/${name}`;
 }
+
+export async function removeNodeImages(paths: string[]) {
+  console.log(paths)
+  if(paths.length <= 0) return 
+  await supabase.storage
+    .from(NODE_IMAGES_FOLDER)
+    .remove(paths);
+}
+export function getNodeImageInfo(imageURL: string) {
+  console.log(imageURL)
+  const url = imageURL.split(CDN_URL + "/")[1];
+  const [buckedName, userID, image] = url.split("/");
+  const [imageName, imageExtension] = image.split(".");
+  const path = `${userID}/${imageName}.${imageExtension}`;
+  return { buckedName, userID, image, imageName, imageExtension, path };
+}
+
+export async function deleteNodeImages(images: string[]) {}

@@ -8,9 +8,9 @@ import React, {
 } from "react";
 import Text from "./node-data-types/Text";
 import Gallery from "./node-data-types/Gallery";
-import { NodeTypes, NodeValue } from "./NodeFormModal";
 import { CiTextAlignLeft } from "react-icons/ci";
 import { MdOutlinePhotoLibrary } from "react-icons/md";
+import { NodeTypes, NodeValue } from "@/types/nodes";
 
 const NodeValueContext = createContext(
   {} as {
