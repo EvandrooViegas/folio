@@ -18,6 +18,13 @@ const NodeValueContext = createContext(
   }
 );
 
+export function useNodeValueContext() {
+  return useContext(NodeValueContext);
+}
+
+
+
+
 const types = [
   { name: "text", icon: <CiTextAlignLeft /> },
   { name: "gallery", icon: <MdOutlinePhotoLibrary /> },
@@ -60,7 +67,7 @@ export default function NodeValue(props: {
             </div>
           ))}
         </div>
-        <div>
+        <div >
           {nodeType === "text" && <Text />}
           {nodeType === "gallery" && <Gallery />}
         </div>
@@ -69,6 +76,3 @@ export default function NodeValue(props: {
   );
 }
 
-export function useNodeValueContext() {
-  return useContext(NodeValueContext);
-}

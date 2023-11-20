@@ -26,68 +26,62 @@ import {
   galleryNodeSchemaData,
 } from "@/types/nodes/gallery/iGalleryNode";
 import { useNodeValueContext } from "../NodeValue";
+import getLocalFileURL from "@/utils/getLocalFileURL";
+import getFileInfo from "@/utils/getFileInfo";
 
 const FormSchema = galleryNodeSchemaData;
 type Form = z.infer<typeof FormSchema>;
 
 export default function Gallery() {
-  const [images, setImages] = useState<IGalleryNodeData[]>([]);
+  const [previewImages, setPreviewImages] = useState<IGalleryNodeData[]>([]);
   const [newImage, setNewImage] = useState<IGalleryNodeData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { onNodeValueChange } = useNodeValueContext();
-  const uploadedNodeImagesPath = useRef<string[]>([]);
 
   const form = useForm<Form>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       id: newImage?.id || "",
-      url: newImage?.url || "",
       title: "",
+      localPreviewURL: "",
       description: "",
     },
   });
 
-  useEffect(() => {
-    return () => {
-      const paths = images.map((img) => getNodeImageInfo(img.url).path);
-      const imagesToDelete = uploadedNodeImagesPath.current.filter((uplImg) =>
-        paths.includes(uplImg)
-      );
-      removeNodeImages(imagesToDelete);
-    };
-  }, []);
-
   const onFileUpload = async (e: React.FormEvent<HTMLInputElement>) => {
-    setIsLoading(true);
-    const img = (e.target as HTMLInputElement).files
-      ? (e.target as HTMLInputElement).files?.[0]
-      : null;
-    if (!img) return errorToast();
-    const url = await uploadNodeImage(img);
-    if (!url) return errorToast();
-    setNewImage({
-      id: crypto.randomUUID(),
-      url,
-    });
-    uploadedNodeImagesPath.current = [
-      ...uploadedNodeImagesPath.current,
-      getNodeImageInfo(url).path,
-    ];
-    setIsLoading(false);
+    try {
+      setIsLoading(true); 
+      
+      const img = (e.target as HTMLInputElement).files?.[0];
+      const previewUrl = await getLocalFileURL(img);
+      if (!previewUrl) return errorToast();
+      const fileInfo = getFileInfo(img);
+      if (!fileInfo?.extension || !fileInfo.type) return errorToast();
+      console.log(fileInfo);
+      setNewImage({
+        id: crypto.randomUUID(),
+        localPreviewURL: previewUrl,
+        image: img,
+      });
+    } finally {
+     setIsLoading(false);
+
+    }
   };
 
-  const onImageCreation = (data: any) => {
-    const nImage = { ...data, ...newImage } as IGalleryNodeData;
-    const nImages = [nImage, ...images];
+  const addPreviewImage = (data: any) => {
+    console.log("aaa")
+    const nPreviewImage = { ...data, ...newImage };
+    const nImages = [...previewImages, nPreviewImage];
+    console.log(nImages)
+    console.log(nImages);
+    setPreviewImages([...nImages]);
     onNodeValueChange({
       type: "gallery",
       data: nImages,
     });
-    setImages(nImages);
     setNewImage(null);
   };
-
-  const onCancel = () => {};
   return (
     <div className="min-w-[500px] flex flex-col gap-2">
       <div>
@@ -101,11 +95,14 @@ export default function Gallery() {
         />
       </div>
       <div className="grid grid-cols-2 gap-4 w-full">
-        {images.map((image) => (
-          <div className="flex flex-col gap-0.5 border border-dashed border-neutral-300 p-3 rounded" key={image.id}>
+        {previewImages.map((image) => (
+          <div
+            className="flex flex-col gap-0.5 border border-dashed border-neutral-300 p-3 rounded"
+            key={image.id}
+          >
             <div className="relative h-40">
               <Image
-                src={image.url}
+                src={image.localPreviewURL}
                 fill
                 className="object-cover align-top rounded "
                 alt="Image"
@@ -150,13 +147,14 @@ export default function Gallery() {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
             <div className="relative w-full h-40 bg-neutral-100 p-2 rounded">
               <Image
                 fill
-                src={newImage.url}
+                src={newImage.localPreviewURL}
                 alt="New Image"
                 className=" object-center object-fit"
               />
@@ -167,18 +165,9 @@ export default function Gallery() {
                 size={"sm"}
                 className="mt-4"
                 variant="outline"
-                onClick={form.handleSubmit(onImageCreation)}
+                onClick={form.handleSubmit(addPreviewImage)}
               >
                 Add
-              </Button>
-              <Button
-                type="submit"
-                size={"sm"}
-                className="mt-4"
-                variant="link"
-                onClick={onCancel}
-              >
-                Cancel
               </Button>
             </div>
           </Form>

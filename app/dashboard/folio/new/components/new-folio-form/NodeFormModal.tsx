@@ -18,10 +18,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import NodeValue from "./NodeValue";
 import { galleryNodeSchema } from "@/types/nodes/gallery/iGalleryNode";
-import z from "zod"
+import z from "zod";
 import { textNodeSchema } from "@/types/nodes/text/iTextNode";
 import { NodeValue as INodeValue } from "@/types/nodes";
-
 
 const FormSchema = z.object({
   name: z.string().min(2, {
@@ -46,7 +45,7 @@ export default function NodeFormModal() {
   };
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
+
   }
   return (
     <div className="p-4 border border-neutral-200 border-dashed">

@@ -2,7 +2,8 @@ import z from "zod";
 
 export const galleryNodeSchemaData = z.object({
   id: z.string(),
-  url: z.string(),
+  localPreviewURL: z.string(),
+  image: z.any().default(null),
   title: z
     .string()
     .max(100, {
