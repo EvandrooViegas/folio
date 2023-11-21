@@ -31,10 +31,10 @@ import getFileInfo from "@/utils/getFileInfo";
 
 const FormSchema = galleryNodeSchemaData;
 type Form = z.infer<typeof FormSchema>;
-
+type NodeDataWithPreviewURL =  IGalleryNodeData  & { localPreviewURL: string }
 export default function Gallery() {
-  const [previewImages, setPreviewImages] = useState<IGalleryNodeData[]>([]);
-  const [newImage, setNewImage] = useState<IGalleryNodeData | null>(null);
+  const [previewImages, setPreviewImages] = useState<NodeDataWithPreviewURL[]>([]);
+  const [newImage, setNewImage] = useState<NodeDataWithPreviewURL| null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { onNodeValueChange } = useNodeValueContext();
 
@@ -43,7 +43,6 @@ export default function Gallery() {
     defaultValues: {
       id: newImage?.id || "",
       title: "",
-      localPreviewURL: "",
       description: "",
     },
   });
@@ -73,8 +72,6 @@ export default function Gallery() {
     console.log("aaa")
     const nPreviewImage = { ...data, ...newImage };
     const nImages = [...previewImages, nPreviewImage];
-    console.log(nImages)
-    console.log(nImages);
     setPreviewImages([...nImages]);
     onNodeValueChange({
       type: "gallery",

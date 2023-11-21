@@ -17,17 +17,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import NodeValue from "./NodeValue";
-import { galleryNodeSchema } from "@/types/nodes/gallery/iGalleryNode";
 import z from "zod";
-import { textNodeSchema } from "@/types/nodes/text/iTextNode";
 import { NodeValue as INodeValue } from "@/types/nodes";
+import { useNewFolioFormContext } from "./context/NewFolioFormContext";
+import { NodeFormSchema } from "./schemas/node";
 
-const FormSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  value: z.union([textNodeSchema, galleryNodeSchema]),
-});
+const FormSchema = NodeFormSchema
 
 type Form = z.infer<typeof FormSchema>;
 
@@ -35,34 +30,32 @@ export default function NodeFormModal() {
   const form = useForm<Form>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: "",
+      title: "",
       value: { type: "text", data: "" },
     },
   });
-
+  const { addNode } = useNewFolioFormContext()
   const onNodeValueChange = (nValue: INodeValue) => {
     form.setValue("value", nValue);
   };
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-
+    addNode(data)
   }
   return (
-    <div className="p-4 border border-neutral-200 border-dashed">
-      <Modal isOpen={true}>
         <div>
           <SectionTitle>Create a new Node</SectionTitle>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
               <FormField
                 control={form.control}
-                name="name"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Title</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="This is your public folio display name"
+                        placeholder="This is your public folio display title"
                         {...field}
                       />
                     </FormControl>
@@ -87,7 +80,5 @@ export default function NodeFormModal() {
             </form>
           </Form>
         </div>
-      </Modal>
-    </div>
   );
 }

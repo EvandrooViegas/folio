@@ -17,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import SectionTitle from "@/components/section/SectionTitle";
 import NodeFormModal from "./NodeFormModal";
+import { useState } from "react";
+import Modal from "@/components/ui/modal";
 
 const FormSchema = z.object({
   name: z.string().min(2, {
@@ -33,7 +35,10 @@ const FormSchema = z.object({
       type: z.string(),
       value: z.any().array(),
     })
-    .array(),
+    .array()
+    .min(1, {
+      message: "You must have at least 1 node",
+    }),
 });
 
 export default function NewFolioForm() {
@@ -46,10 +51,15 @@ export default function NewFolioForm() {
     },
   });
 
+  const [isOpen, setIsOpen] = useState(false);
+  const openModal = () => {
+    console.log("aaa")
+    setIsOpen(true);
+  }
+  const closeModal = () => setIsOpen(false);
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(data);
   }
-
   return (
     <div className=" w-full">
       <Form {...form}>
@@ -88,10 +98,34 @@ export default function NewFolioForm() {
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="nodes"
+            render={() => (
+              <FormItem>
+                <div className="flex gap-2 items-center justify-between mb-2">
+                  <FormLabel>Nodes</FormLabel>
+                  <Button
+                    icon="more"
+                    size="sm"
+                    variant="outline"
+                    onClick={openModal}
+                  >
+                    Create a new node
+                  </Button>
+                </div>
+                <div className="p-4 border border-input border-dashed"></div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <Button type="submit">Submit</Button>
         </form>
+        <Modal isOpen={isOpen} close={closeModal}>
+          <NodeFormModal />
+        </Modal>
       </Form>
-      <NodeFormModal />
     </div>
   );
 }

@@ -1,13 +1,14 @@
-import { NodeValue } from "@/types/nodes";
+"use client"
+import { Node } from "@/types/nodes";
 import React, { createContext, useContext, useState } from "react";
 
 type Folio = {
   name: string;
   description: string;
-  nodes: NodeValue[];
+  nodes: Node[];
 };
 type INewFolioFormContext = {
-  addNode: (nNode: NodeValue) => void;
+  addNode: (nNode: Node) => void;
 };
 
 const NewFolioFormContext = createContext({} as INewFolioFormContext);
@@ -17,10 +18,10 @@ export default function NewFolioFormProvider({
     children: React.ReactNode
 }) {
   const [folio, setFolio] = useState({} as Folio);
-  const addNode = (nNode: NodeValue) => {
+  const addNode = (nNode: Node) => {
     setFolio({
       ...folio,
-      nodes: [...folio?.nodes, nNode],
+      nodes: folio.nodes?.length ? [...folio?.nodes, nNode] : [nNode], 
     });
   };
 
