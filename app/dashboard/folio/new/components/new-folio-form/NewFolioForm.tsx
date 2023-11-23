@@ -53,15 +53,21 @@ export default function NewFolioForm() {
 
   const [isOpen, setIsOpen] = useState(false);
   const openModal = () => {
-    console.log("aaa")
+    console.log("open")
     setIsOpen(true);
   }
-  const closeModal = () => setIsOpen(false);
+  const closeModal = () => {
+    console.log("close")
+    setIsOpen(false);
+  }
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(data);
   }
   return (
     <div className=" w-full">
+         <Modal isOpen={isOpen} close={closeModal}>
+          <NodeFormModal />
+        </Modal>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
           <SectionTitle>Create a New Folio</SectionTitle>
@@ -122,9 +128,7 @@ export default function NewFolioForm() {
           />
           <Button type="submit">Submit</Button>
         </form>
-        <Modal isOpen={isOpen} close={closeModal}>
-          <NodeFormModal />
-        </Modal>
+     
       </Form>
     </div>
   );
