@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,35 +14,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import SectionTitle from "@/components/section/SectionTitle";
-import NodeFormModal from "./NodeFormModal";
+import SectionTitle from "@/components/section/title";
+import NodeFormModal from "./components/NodeFormModal";
 import { useState } from "react";
 import Modal from "@/components/ui/modal";
-
-const FormSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  description: z
-    .string()
-    .min(2, {
-      message: "Description must be at least 2 characters.",
-    })
-    .optional(),
-  nodes: z
-    .object({
-      type: z.string(),
-      value: z.any().array(),
-    })
-    .array()
-    .min(1, {
-      message: "You must have at least 1 node",
-    }),
-});
+import { useNewFolioFormContext } from "./context/NewFolioFormContext";
+import Icon from "@/components/ui/Icon";
+import { Folio, FolioSchema } from "@/types/folio";
+import Image from "next/image";
+import NodeListPreview from "./components/NodesListPreview";
 
 export default function NewFolioForm() {
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<Folio>({
+    resolver: zodResolver(FolioSchema),
     defaultValues: {
       name: "",
       description: "",
@@ -52,22 +35,22 @@ export default function NewFolioForm() {
   });
 
   const [isOpen, setIsOpen] = useState(false);
+  const { folio } = useNewFolioFormContext();
+
   const openModal = () => {
-    console.log("open")
     setIsOpen(true);
-  }
+  };
   const closeModal = () => {
-    console.log("close")
     setIsOpen(false);
-  }
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  };
+  function onSubmit(data: Folio) {
     console.log(data);
   }
   return (
     <div className=" w-full">
-         <Modal isOpen={isOpen} close={closeModal}>
-          <NodeFormModal />
-        </Modal>
+      <Modal isOpen={isOpen} close={closeModal} title="Create a new Node">
+        <NodeFormModal />
+      </Modal>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
           <SectionTitle>Create a New Folio</SectionTitle>
@@ -121,14 +104,15 @@ export default function NewFolioForm() {
                     Create a new node
                   </Button>
                 </div>
-                <div className="p-4 border border-input border-dashed"></div>
+                <div className="p-4 border border-input border-dashed rounded overflow-y-auto">
+                  <NodeListPreview nodes={folio.nodes} />
+                </div>
                 <FormMessage />
               </FormItem>
             )}
           />
           <Button type="submit">Submit</Button>
         </form>
-     
       </Form>
     </div>
   );

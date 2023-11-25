@@ -2,9 +2,7 @@
 
 import React from "react";
 
-import Modal from "@/components/ui/modal";
 import { useForm } from "react-hook-form";
-import SectionTitle from "@/components/section/SectionTitle";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -18,9 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import NodeValue from "./NodeValue";
 import z from "zod";
-import { NodeValue as INodeValue } from "@/types/nodes";
-import { useNewFolioFormContext } from "./context/NewFolioFormContext";
-import { NodeFormSchema } from "./schemas/node";
+import { NodeValue as INodeValue, NodeFormSchema } from "@/types/nodes";
+import { useNewFolioFormContext } from "../context/NewFolioFormContext";
 
 const FormSchema = NodeFormSchema
 
@@ -44,7 +41,6 @@ export default function NodeFormModal() {
   }
   return (
         <div>
-          <SectionTitle>Create a new Node</SectionTitle>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
               <FormField

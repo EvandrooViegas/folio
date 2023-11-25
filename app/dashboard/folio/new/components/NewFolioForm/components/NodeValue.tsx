@@ -6,11 +6,10 @@ import React, {
   ReactElement,
   useState,
 } from "react";
-import Text from "./node-data-types/Text";
-import Gallery from "./node-data-types/Gallery";
-import { CiTextAlignLeft } from "react-icons/ci";
-import { MdOutlinePhotoLibrary } from "react-icons/md";
+import Text from "./NodeDataForm/Text";
+import Gallery from "./NodeDataForm/Gallery";
 import { NodeTypes, NodeValue } from "@/types/nodes";
+import Icon from "@/components/ui/Icon";
 
 const NodeValueContext = createContext(
   {} as {
@@ -26,8 +25,8 @@ export function useNodeValueContext() {
 
 
 const types = [
-  { name: "text", icon: <CiTextAlignLeft /> },
-  { name: "gallery", icon: <MdOutlinePhotoLibrary /> },
+  { name: "text", icon: <Icon name="node-text" /> },
+  { name: "gallery", icon: <Icon name="node-gallery" /> },
 ] as {
   name: NodeTypes;
   icon: ReactElement;
@@ -67,7 +66,7 @@ export default function NodeValue(props: {
             </div>
           ))}
         </div>
-        <div >
+        <div className="min-w-[500px] ">
           {nodeType === "text" && <Text />}
           {nodeType === "gallery" && <Gallery />}
         </div>

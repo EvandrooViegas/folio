@@ -1,6 +1,6 @@
 import React from "react";
-import SectionTitle from "../../../../components/section/SectionTitle";
-import SectionDescription from "../../../../components/section/SectionDescription";
+import SectionTitle from "../../../../components/section/title";
+import SectionDescription from "../../../../components/section/description";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

@@ -1,6 +1,6 @@
 import React from "react";
-import NewFolioForm from "./components/new-folio-form/NewFolioForm";
-import NewFolioFormProvider from "./components/new-folio-form/context/NewFolioFormContext";
+import NewFolioFormProvider from "./components/NewFolioForm/context/NewFolioFormContext";
+import NewFolioForm from "./components/NewFolioForm";
 
 export default function Wrapper() {
   return (

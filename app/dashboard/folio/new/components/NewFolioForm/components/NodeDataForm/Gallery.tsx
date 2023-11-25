@@ -56,7 +56,7 @@ export default function Gallery() {
       if (!previewUrl) return errorToast();
       const fileInfo = getFileInfo(img);
       if (!fileInfo?.extension || !fileInfo.type) return errorToast();
-      console.log(fileInfo);
+   
       setNewImage({
         id: crypto.randomUUID(),
         localPreviewURL: previewUrl,
@@ -80,7 +80,7 @@ export default function Gallery() {
     setNewImage(null);
   };
   return (
-    <div className="min-w-[500px] flex flex-col gap-2">
+    <div className="flex flex-col gap-2">
       <div>
         <Input
           id="picture"

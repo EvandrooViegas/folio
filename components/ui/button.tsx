@@ -5,7 +5,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { PiSpinnerGapLight } from "react-icons/pi";
 import { BsPlus } from "react-icons/bs"
-import iconsMap from "@/utils/iconsMap";
+import iconsMap, { IconsKeys } from "@/utils/iconsMap";
+import Icon from "./Icon";
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
@@ -18,6 +19,7 @@ const buttonVariants = cva(
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
@@ -36,13 +38,12 @@ const buttonVariants = cva(
 );
 
 
-type Keys = keyof typeof iconsMap;
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   isLoading?: boolean;
-  icon?: Keys
+  icon?: IconsKeys
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -58,9 +59,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {props.children ? props.children : null}
         {icon ? (
-          <span>
-            {iconsMap[icon]}
-          </span>
+         <Icon name={icon} />
         ) : null}
         {isLoading && (
           <span className="animate-spin">

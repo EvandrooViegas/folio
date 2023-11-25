@@ -10,5 +10,5 @@ export default function Text() {
       data: e?.target?.value || "",
     });
   };
-  return <Input onChange={onChange} />;
+  return <Input  onChange={onChange} />;
 }

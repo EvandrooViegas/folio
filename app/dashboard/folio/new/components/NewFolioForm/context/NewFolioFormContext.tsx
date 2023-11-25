@@ -1,14 +1,12 @@
 "use client"
+import { Folio } from "@/types/folio";
 import { Node } from "@/types/nodes";
 import React, { createContext, useContext, useState } from "react";
 
-type Folio = {
-  name: string;
-  description: string;
-  nodes: Node[];
-};
+
 type INewFolioFormContext = {
   addNode: (nNode: Node) => void;
+  folio: Folio
 };
 
 const NewFolioFormContext = createContext({} as INewFolioFormContext);
@@ -21,13 +19,13 @@ export default function NewFolioFormProvider({
   const addNode = (nNode: Node) => {
     setFolio({
       ...folio,
-      nodes: folio.nodes?.length ? [...folio?.nodes, nNode] : [nNode], 
+      nodes:  folio.nodes ? [...folio.nodes, nNode] : [nNode], 
     });
   };
 
   return (
     <NewFolioFormContext.Provider
-      value={{ addNode }}
+      value={{ addNode, folio }}
     >
         {children}
     </NewFolioFormContext.Provider>
