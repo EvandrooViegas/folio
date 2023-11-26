@@ -8,6 +8,7 @@ type Props = {
 export default function Gallery(props: Props) {
   const { gallery: rawGallery } = props;
   const gallery = rawGallery?.splice(0, 4)
+
   if(!gallery) return null
   return (
     <div className="grid grid-cols-2 gap-0.5 bg-neutral-200 ">

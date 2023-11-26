@@ -31,10 +31,12 @@ import getFileInfo from "@/utils/getFileInfo";
 
 const FormSchema = galleryNodeSchemaData;
 type Form = z.infer<typeof FormSchema>;
-type NodeDataWithPreviewURL =  IGalleryNodeData  & { localPreviewURL: string }
+type NodeDataWithPreviewURL = IGalleryNodeData & { localPreviewURL: string };
 export default function Gallery() {
-  const [previewImages, setPreviewImages] = useState<NodeDataWithPreviewURL[]>([]);
-  const [newImage, setNewImage] = useState<NodeDataWithPreviewURL| null>(null);
+  const [previewImages, setPreviewImages] = useState<NodeDataWithPreviewURL[]>(
+    []
+  );
+  const [newImage, setNewImage] = useState<NodeDataWithPreviewURL | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { onNodeValueChange } = useNodeValueContext();
 
@@ -49,29 +51,28 @@ export default function Gallery() {
 
   const onFileUpload = async (e: React.FormEvent<HTMLInputElement>) => {
     try {
-      setIsLoading(true); 
-      
+      setIsLoading(true);
+
       const img = (e.target as HTMLInputElement).files?.[0];
       const previewUrl = await getLocalFileURL(img);
       if (!previewUrl) return errorToast();
       const fileInfo = getFileInfo(img);
       if (!fileInfo?.extension || !fileInfo.type) return errorToast();
-   
+
       setNewImage({
         id: crypto.randomUUID(),
         localPreviewURL: previewUrl,
         image: img,
       });
     } finally {
-     setIsLoading(false);
-
+      setIsLoading(false);
     }
   };
 
   const addPreviewImage = (data: any) => {
-    console.log("aaa")
     const nPreviewImage = { ...data, ...newImage };
     const nImages = [...previewImages, nPreviewImage];
+    console.log(nImages)
     setPreviewImages([...nImages]);
     onNodeValueChange({
       type: "gallery",

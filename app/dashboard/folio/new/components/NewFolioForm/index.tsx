@@ -18,11 +18,9 @@ import SectionTitle from "@/components/section/title";
 import NodeFormModal from "./components/NodeFormModal";
 import { useState } from "react";
 import Modal from "@/components/ui/modal";
-import { useNewFolioFormContext } from "./context/NewFolioFormContext";
-import Icon from "@/components/ui/Icon";
 import { Folio, FolioSchema } from "@/types/folio";
-import Image from "next/image";
 import NodeListPreview from "./components/NodesListPreview";
+import { Node } from "@/types/nodes";
 
 export default function NewFolioForm() {
   const form = useForm<Folio>({
@@ -33,23 +31,27 @@ export default function NewFolioForm() {
       nodes: [],
     },
   });
-
   const [isOpen, setIsOpen] = useState(false);
-  const { folio } = useNewFolioFormContext();
-
   const openModal = () => {
     setIsOpen(true);
   };
   const closeModal = () => {
     setIsOpen(false);
   };
+
+  const addNode = (nNode: Node) => {
+    const nNodes =  [...folio.nodes, nNode]
+    form.setValue("nodes", nNodes)
+  }  
   function onSubmit(data: Folio) {
     console.log(data);
   }
+  const folio = form.getValues()
+
   return (
     <div className=" w-full">
       <Modal isOpen={isOpen} close={closeModal} title="Create a new Node">
-        <NodeFormModal />
+        <NodeFormModal addNode={addNode} />
       </Modal>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">

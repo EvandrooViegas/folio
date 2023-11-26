@@ -16,14 +16,18 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import NodeValue from "./NodeValue";
 import z from "zod";
-import { NodeValue as INodeValue, NodeFormSchema } from "@/types/nodes";
-import { useNewFolioFormContext } from "../context/NewFolioFormContext";
+import { NodeValue as INodeValue, Node, NodeFormSchema } from "@/types/nodes";
+import { useModalContext } from "@/components/ui/modal";
 
 const FormSchema = NodeFormSchema
 
 type Form = z.infer<typeof FormSchema>;
 
-export default function NodeFormModal() {
+type Props = {
+  addNode: (node: Node) => void
+}
+export default function NodeFormModal(props: Props) {
+  const { addNode } = props
   const form = useForm<Form>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -31,13 +35,15 @@ export default function NodeFormModal() {
       value: { type: "text", data: "" },
     },
   });
-  const { addNode } = useNewFolioFormContext()
+  const { closeModal } = useModalContext()
   const onNodeValueChange = (nValue: INodeValue) => {
     form.setValue("value", nValue);
   };
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    console.log(data)
     addNode(data)
+    closeModal()
   }
   return (
         <div>

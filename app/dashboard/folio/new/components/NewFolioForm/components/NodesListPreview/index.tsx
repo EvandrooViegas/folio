@@ -1,6 +1,6 @@
 import Icon from "@/components/ui/Icon";
 import { Node } from "@/types/nodes";
-import Image from "next/image";
+
 import React from "react";
 import Text from "./Text";
 import Gallery from "./Gallery";
@@ -10,6 +10,7 @@ type Props = {
 };
 export default function NodeListPreview(props: Props) {
   const { nodes } = props;
+  console.log(nodes)
   return (
     <div>
       {nodes ? (

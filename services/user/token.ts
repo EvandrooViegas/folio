@@ -1,6 +1,6 @@
 import env from "../env";
 import * as jose from "jose"
-
+import { AUTH_COOKIE_TOKEN_EXP } from "./config";
 
 
 type AuthJWTClaims = {
@@ -15,7 +15,7 @@ const createAuthJWT = async (id: string | undefined | null) => {
   const alg = 'HS256'
   const jwt = await new jose.SignJWT({ id })
   .setProtectedHeader({ alg })
-  .setExpirationTime(24 * 30+"h") // 1 month
+  .setExpirationTime(AUTH_COOKIE_TOKEN_EXP) // 1 month
   .sign(encodedSecret)
   return jwt
 };
