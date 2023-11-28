@@ -25,26 +25,31 @@ export type Form = z.infer<typeof FormSchema>;
 
 export default function NodeFormModal() {
   const { closeModal } = useModalContext();
-  const { nodeFieldArray } = useFolioFormContext();
+  const { addNode } = useFolioFormContext();
+  const [value, setValue] = useState<INodeValue>({ type: "text", data: "" })
   const nodeForm = useForm<Node>({
     resolver: zodResolver(NodeFormSchema),
     defaultValues: {
       title: "",
-      value: { data: "", type: "text" },
+      value ,
     },
   });
 
   function onSubmit() {
     const node = nodeForm.getValues();
-    nodeFieldArray.append(node);
+    addNode(node);
     closeModal();
   }
 
-  const setNodeValue = (nValue: INodeValue) => {
-    nodeForm.setValue("value", nValue);
-  };
+  const setNodeValue = (nNode: INodeValue) => {
+    nodeForm.setValue("value", nNode)
+    setValue(nNode)
+  }
+
   return (
-    <NodeContext.Provider value={{ setNodeValue, form: nodeForm }}>
+    <NodeContext.Provider
+      value={{ setNodeValue, form: nodeForm }}
+    >
       <Form {...nodeForm}>
         <div className="space-y-2">
           <FormField

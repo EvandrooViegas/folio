@@ -1,7 +1,7 @@
 "use client"
 import { Node, NodeValue } from "@/types/nodes";
 import React, { createContext, useContext } from "react";
-import {  UseFormReturn } from "react-hook-form";
+import {  UseFieldArrayReturn, UseFormReturn } from "react-hook-form";
 
 
 type INodeContext = {

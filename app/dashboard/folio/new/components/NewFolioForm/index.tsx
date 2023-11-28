@@ -21,8 +21,10 @@ import Modal from "@/components/ui/modal";
 import { Folio, FolioSchema } from "@/types/folio";
 import NodeListPreview from "./components/NodesListPreview";
 import { FolioFormContext } from "./context/FolioFormContext";
+import { Node } from "@/types/nodes";
 
 export default function NewFolioForm() {
+  const [nodes, setNodes] = useState<Node[]>([])
   const form = useForm<Folio>({
     resolver: zodResolver(FolioSchema),
     defaultValues: {
@@ -32,18 +34,14 @@ export default function NewFolioForm() {
     },
   });
 
-  const fieldArray = useFieldArray({
-    control: form.control,
-    name: "nodes",
-    rules: {
-      validate: {
-        
-      }
-    }
-  });
 
   const [isOpen, setIsOpen] = useState(false);
 
+  const addNode = (nNode: Node) => {
+    const recivedNode = nNode
+    setNodes([recivedNode, ...nodes])
+    // fieldArray.append(nNode)
+  }
   const openModal = () => {
     setIsOpen(true);
   };
@@ -52,12 +50,14 @@ export default function NewFolioForm() {
   };
 
   function onSubmit(data: Folio) {
-    console.log(data);
+    const newFolio = { ...data, nodes }
+    console.log(newFolio)
   }
-  const folio = form.getValues();
+
+  console.log(nodes)
 
   return (
-    <FolioFormContext.Provider value={{ form, nodeFieldArray: fieldArray  }}>
+    <FolioFormContext.Provider value={{ form, addNode  }}>
       <div className=" w-full">
         <Modal isOpen={isOpen} close={closeModal} title="Create a new Node">
           <NodeFormModal  />
@@ -116,7 +116,7 @@ export default function NewFolioForm() {
                     </Button>
                   </div>
                   <div className="p-4 border border-input border-dashed rounded overflow-y-auto">
-                    <NodeListPreview nodes={folio.nodes} />
+                    <NodeListPreview nodes={nodes} />
                   </div>
                   <FormMessage />
                 </FormItem>

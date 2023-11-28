@@ -55,7 +55,7 @@ export default function Gallery() {
     }
   };
 
-  const addPreviewImage = (data: IGalleryNodeData) => {
+  const addPreviewImage = () => {
     const nImage = newImageForm.getValues()
     const nImages = [nImage, ...previewImages];
     setPreviewImages(nImages);

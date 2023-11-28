@@ -6,19 +6,16 @@ type Props = {
   gallery: IGalleryNodeData[] | null;
 };
 export default function Gallery(props: Props) {
-  const { gallery: rawGallery } = props;
-  const gallery = rawGallery?.splice(0, 4)
-
-  if(!gallery) return null
+  const { gallery } = props;
+  if (!gallery) return null;
   return (
     <div className="grid grid-cols-2 gap-0.5 bg-neutral-200 ">
-      {gallery?.map(image => {
-        return (
+      {gallery?.map((image, idx) => (
           <div
             className={`relative grow ${
               gallery.length === 1 ? "col-span-2" : ""
             } aspect-square`}
-            key={image.id}
+            key={idx}
           >
             <Image
               src={image.localPreviewURL}
@@ -27,8 +24,7 @@ export default function Gallery(props: Props) {
               className="object-cover bg-black "
             />
           </div>
-        );
-      })}
+        ))}
     </div>
   );
 }
