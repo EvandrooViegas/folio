@@ -1,12 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
@@ -16,71 +13,76 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import NodeValue from "./NodeValue";
 import z from "zod";
-import { NodeValue as INodeValue, Node, NodeFormSchema } from "@/types/nodes";
+import { Node, NodeFormSchema, NodeValue as INodeValue } from "@/types/nodes";
 import { useModalContext } from "@/components/ui/modal";
+import { useFolioFormContext } from "../context/FolioFormContext";
+import { NodeContext } from "../context/NodeContext";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-const FormSchema = NodeFormSchema
+export const FormSchema = NodeFormSchema;
+export type Form = z.infer<typeof FormSchema>;
 
-type Form = z.infer<typeof FormSchema>;
-
-type Props = {
-  addNode: (node: Node) => void
-}
-export default function NodeFormModal(props: Props) {
-  const { addNode } = props
-  const form = useForm<Form>({
-    resolver: zodResolver(FormSchema),
+export default function NodeFormModal() {
+  const { closeModal } = useModalContext();
+  const { nodeFieldArray } = useFolioFormContext();
+  const nodeForm = useForm<Node>({
+    resolver: zodResolver(NodeFormSchema),
     defaultValues: {
       title: "",
-      value: { type: "text", data: "" },
+      value: { data: "", type: "text" },
     },
   });
-  const { closeModal } = useModalContext()
-  const onNodeValueChange = (nValue: INodeValue) => {
-    form.setValue("value", nValue);
-  };
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data)
-    addNode(data)
-    closeModal()
+  function onSubmit() {
+    const node = nodeForm.getValues();
+    nodeFieldArray.append(node);
+    closeModal();
   }
-  return (
-        <div>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="This is your public folio display title"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <FormField
-                control={form.control}
-                name="value"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Value</FormLabel>
-                    <NodeValue onNodeValueChange={onNodeValueChange} />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" size={"sm"} className="mt-4">
-                Create
-              </Button>
-            </form>
-          </Form>
+  const setNodeValue = (nValue: INodeValue) => {
+    nodeForm.setValue("value", nValue);
+  };
+  return (
+    <NodeContext.Provider value={{ setNodeValue, form: nodeForm }}>
+      <Form {...nodeForm}>
+        <div className="space-y-2">
+          <FormField
+            control={nodeForm.control}
+            name={`title`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <Input
+                  placeholder="This is your public folio display title"
+                  {...field}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={nodeForm.control}
+            name={`value.data`}
+            render={({ field }) => (
+              <FormItem>
+                <NodeValue field={field} />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button
+            type="submit"
+            size={"sm"}
+            className="mt-4"
+            onClick={nodeForm.handleSubmit(onSubmit)}
+          >
+            Create
+          </Button>
         </div>
+      </Form>
+    </NodeContext.Provider>
   );
 }
