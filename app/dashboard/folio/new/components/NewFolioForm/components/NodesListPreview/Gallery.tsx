@@ -7,13 +7,14 @@ type Props = {
 };
 export default function Gallery(props: Props) {
   const { gallery } = props;
-  if (!gallery) return null;
+  const slicedGallery = gallery?.slice(0, 4)
+  if (!slicedGallery) return null;
   return (
     <div className="grid grid-cols-2 gap-0.5 bg-neutral-200 ">
-      {gallery?.map((image, idx) => (
+      {slicedGallery?.map((image, idx) => (
           <div
             className={`relative grow ${
-              gallery.length === 1 ? "col-span-2" : ""
+              slicedGallery.length === 1 ? "col-span-2" : ""
             } aspect-square`}
             key={idx}
           >

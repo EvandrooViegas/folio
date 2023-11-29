@@ -34,13 +34,17 @@ export default function NewFolioForm() {
     },
   });
 
-
+  const fieldArray = useFieldArray({
+    control: form.control,
+    name: "nodes"
+  }) 
   const [isOpen, setIsOpen] = useState(false);
 
   const addNode = (nNode: Node) => {
     const recivedNode = nNode
     setNodes([recivedNode, ...nodes])
-    // fieldArray.append(nNode)
+    
+    fieldArray.append(nNode)
   }
   const openModal = () => {
     setIsOpen(true);
