@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
-
+import { ToastContainer, toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,55 +16,69 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import SectionTitle from "@/components/section/title";
 import NodeFormModal from "./components/NodeFormModal";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Modal from "@/components/ui/modal";
 import { Folio, FolioSchema } from "@/types/folio";
 import NodeListPreview from "./components/NodesListPreview";
 import { FolioFormContext } from "./context/FolioFormContext";
-import { Node } from "@/types/nodes";
+import { createNodes } from "@/services/nodes";
+import { NewNode } from "@/types/nodes";
+import { createFolio } from "@/services/folio";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function NewFolioForm() {
-  const [nodes, setNodes] = useState<Node[]>([])
+  const [nodes, setNodes] = useState<NewNode[]>([]);
+  const folioID = useRef(crypto.randomUUID());
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<Folio>({
     resolver: zodResolver(FolioSchema),
     defaultValues: {
       name: "",
       description: "",
       nodes: [],
+      id: folioID.current,
     },
   });
-
+  const router = useRouter()
   const fieldArray = useFieldArray({
     control: form.control,
-    name: "nodes"
-  }) 
+    name: "nodes",
+  });
   const [isOpen, setIsOpen] = useState(false);
 
-  const addNode = (nNode: Node) => {
-    const recivedNode = nNode
-    setNodes([recivedNode, ...nodes])
-    
-    fieldArray.append(nNode)
-  }
+  const addNode = (nNode: NewNode) => {
+    const recivedNode = nNode;
+    setNodes([recivedNode, ...nodes]);
+
+    fieldArray.append(nNode);
+  };
   const openModal = () => {
     setIsOpen(true);
   };
   const closeModal = () => {
     setIsOpen(false);
   };
-
-  function onSubmit(data: Folio) {
-    const newFolio = { ...data, nodes }
-    console.log(newFolio)
+  async function onSubmit(data: Folio) {
+    setIsLoading(true);
+    //@ts-ignore
+    delete data.nodes;
+    await createFolio(data);
+    const nNodes = await createNodes(nodes, {
+      returnNodes: true,
+    });
+    toast.success("Folio created successfully!");
+    setIsLoading(false);
+    router.push("/dashbord")
   }
 
-  console.log(nodes)
-
   return (
-    <FolioFormContext.Provider value={{ form, addNode  }}>
+    <FolioFormContext.Provider
+      value={{ form, addNode, folio_id: folioID.current }}
+    >
       <div className=" w-full">
         <Modal isOpen={isOpen} close={closeModal} title="Create a new Node">
-          <NodeFormModal  />
+          <NodeFormModal />
         </Modal>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
@@ -126,7 +140,9 @@ export default function NewFolioForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit">Submit</Button>
+            <Button type="submit" isLoading={isLoading}>
+              Submit
+            </Button>
           </form>
         </Form>
       </div>

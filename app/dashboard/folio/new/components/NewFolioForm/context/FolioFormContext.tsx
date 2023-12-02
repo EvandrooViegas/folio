@@ -7,7 +7,8 @@ import { UseFieldArrayReturn, UseFormReturn } from "react-hook-form";
 
 type INewFolioFormContext = {
  form: UseFormReturn<Folio>
- addNode: (nNode: Node) => void
+ addNode: (nNode: Node) => void,
+ folio_id: string
 };
 
 export const FolioFormContext = createContext({} as INewFolioFormContext);

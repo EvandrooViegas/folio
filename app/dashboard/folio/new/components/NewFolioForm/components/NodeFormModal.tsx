@@ -25,13 +25,16 @@ export type Form = z.infer<typeof FormSchema>;
 
 export default function NodeFormModal() {
   const { closeModal } = useModalContext();
-  const { addNode } = useFolioFormContext();
+  const { addNode, folio_id } = useFolioFormContext();
   const [value, setValue] = useState<INodeValue>({ type: "text", data: "" })
   const nodeForm = useForm<Node>({
     resolver: zodResolver(NodeFormSchema),
     defaultValues: {
       title: "",
       value ,
+      version: "v1",
+      folio_id,
+      id: crypto.randomUUID()
     },
   });
 

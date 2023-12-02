@@ -72,6 +72,12 @@ export const getUserByAuthJWT = async () => {
   return user;
 };
 
+export const getAuthedUserID = async () => {
+  const jwt = cookies().get(AUTH_JWT_COOKIE_NAME);
+  const { id } = await readAuthJWT(jwt?.value) || {};
+  return id
+}
+
 export const getAuthedUser = async () => {
   const user = await getUserByAuthJWT();
   return user;

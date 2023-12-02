@@ -1,5 +1,6 @@
 import z from "zod";
 import { NodeFormSchema } from "./nodes";
+import { Database } from "@/lib/supabase/database.types";
 
 export const FolioSchema = z.object({
   name: z.string().min(2, {
@@ -14,6 +15,9 @@ export const FolioSchema = z.object({
   nodes: NodeFormSchema.array().min(1, {
     message: "You must have at least 1 node",
   }),
+  id: z.string()
 });
 
 export type Folio = z.infer<typeof FolioSchema>;
+export type iFolio = Database['public']['Tables']['folios']['Row']
+export type iNewFolio = Database['public']['Tables']['folios']['Insert']

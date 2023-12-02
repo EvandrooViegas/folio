@@ -1,9 +1,5 @@
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "react-toastify";
 
 export default function errorToast () {
-  toast({
-    title: "A error occurred",
-    description: "Try again later",
-    variant: "destructive",
-  });
+  toast.error("An error occured, try again later")
 }
