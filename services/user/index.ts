@@ -20,7 +20,8 @@ const getUserByAttr = async (
   return qUserArr.data?.[0];
 };
 
-export const getUserByEmail = async (email: string) => {
+export const getUserByEmail = async (email: string | undefined) => {
+
   const usr = getUserByAttr("email", email);
   return usr;
 };

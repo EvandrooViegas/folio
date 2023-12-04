@@ -14,8 +14,8 @@ import errorToast from "@/utils/errorToast";
 export default function OAuth() {
   const supabase = createClientComponentClient();
   const sessionUser = useRef<null | User>(null);
-  const router = useRouter();
-  const {  setNewUser, setIsLoading, isLoading, setCanChangeStep, complete } =
+
+  const { setNewUser, setIsLoading, isLoading, setCanChangeStep, complete } =
     useAuthContext();
 
   const onClick = async () => {
@@ -33,23 +33,14 @@ export default function OAuth() {
       sessionUser.current = session?.data?.session?.user || null;
       const email = sessionUser.current?.email;
       const profileAvatar = sessionUser.current?.user_metadata.avatar_url;
-      
-      if (!profileAvatar || !email) return
-      
-      const usr = await getUserByEmail(email);
-      const isNewUsr = !!!usr;
-      await supabase.auth.signOut();
 
-      if (isNewUsr) {
-        setNewUser({
-          email,
-          profile_avatar: profileAvatar,
-        });
-        setCanChangeStep(true);
-      } else {
-        complete({ isNewUsr: false, user: usr })
-      }
-    } catch (error) {
+      if (!profileAvatar || !email) return;
+      await supabase.auth.signOut();
+      setNewUser({
+        email,
+        profile_avatar: profileAvatar,
+      });
+      setCanChangeStep(true);
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +61,6 @@ export default function OAuth() {
         <span>
           <FcGoogle />
         </span>
-        
       </Button>
     </div>
   );

@@ -16,5 +16,8 @@ export type NewNode = z.infer<typeof NodeFormSchema>;
 export type NodeTypes = NewNode["value"]["type"];
 export type NodeValue = NewNode["value"];
 
-export type iNode = Database['public']['Tables']['nodes']['Row']
+export type iDatabaseNode = Database['public']['Tables']['nodes']['Row']
+export type iNode = Omit<Database['public']['Tables']['nodes']['Row'], "value"> & {
+  value: NodeValue
+}
 export type iTransformedNode = Omit<iNode, "created_at" | "user_id"> 

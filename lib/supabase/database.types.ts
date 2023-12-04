@@ -15,6 +15,7 @@ export interface Database {
           description: string | null
           id: string
           name: string
+          private: boolean
           user_id: string
         }
         Insert: {
@@ -22,6 +23,7 @@ export interface Database {
           description?: string | null
           id?: string
           name?: string
+          private?: boolean
           user_id: string
         }
         Update: {
@@ -29,6 +31,7 @@ export interface Database {
           description?: string | null
           id?: string
           name?: string
+          private?: boolean
           user_id?: string
         }
         Relationships: [

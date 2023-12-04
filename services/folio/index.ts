@@ -1,10 +1,41 @@
 import supabase from "@/lib/supabase";
-import {  iNewFolio } from "@/types/folio";
+import { iCompleteFolio, iFolio, iNewFolio } from "@/types/folio";
 import { getAuthedUserID } from "../user";
+import { getNodesByFolioID } from "../nodes/server-actions";
+import { iNode } from "@/types/nodes";
 
 export async function createFolio(folio: Omit<iNewFolio, "user_id">) {
-    const userID = await getAuthedUserID()
-    if(!userID) return 
-    const res = await supabase.from("folios").insert({ ...folio, user_id: userID })
-    console.log(res)
+  const userID = await getAuthedUserID();
+  if (!userID) return;
+  const res = await supabase
+    .from("folios")
+    .insert({ ...folio, user_id: userID });
+  console.log(res);
+}
+
+export async function fetchUserFolios() {
+  const userID = await getAuthedUserID();
+  if (!userID) return;
+  const res = await supabase.from("folios").select().eq("user_id", userID);
+  return res.data;
+}
+
+type Options = {
+  include: {
+    nodes: boolean;
+  };
+};
+export async function getFolioByID(
+  id: string | undefined,
+  options: Options = { include: { nodes: false } }
+): Promise<iCompleteFolio | iFolio | undefined | null>   {
+  if (!id) return;
+  const { include } = options;
+  const res = await supabase.from("folios").select().eq("id", id).single();
+  if (!include.nodes) {
+    return res.data
+  }
+  const nodes = await getNodesByFolioID(id);
+  const completeFolio = { ...res.data, nodes } as iCompleteFolio
+  return completeFolio;
 }

@@ -26,6 +26,7 @@ module.exports = {
         "gray-1": "hsl(var(--gray-1))",
         "gray-2": "hsl(var(--gray-2))",
         "gray-3": "hsl(var(--gray-3))",
+        "skeleton": "hsl(var(--skeleton))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",

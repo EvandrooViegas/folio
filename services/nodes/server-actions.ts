@@ -1,13 +1,10 @@
-"use server";
+
 
 import { iTransformedNode } from "@/types/nodes";
 import { getAuthedUserID } from "../user";
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
-import { Database } from "@/lib/supabase/database.types";
+import supabase from "@/lib/supabase";
 
 export async function saveNodes(nodes: iTransformedNode[]) {
-  const supabase = createServerActionClient({ cookies });
   const userID = await getAuthedUserID();
   if (!userID) return;
 
@@ -21,17 +18,22 @@ export async function saveNodes(nodes: iTransformedNode[]) {
   );
 }
 
-export async function getNodeByID(id: string) {
-  const supabase = createServerActionClient<Database>({ cookies });
-  const node = await supabase
-  .from("nodes")
-  .select()
-  .eq("id", id)
-  .single()
-  .then((r) => r.data);
-  return node
+export async function getNodesByFolioID(id: string) {
+  const rawNodes = await supabase.from("nodes").select().eq("folio_id", id);
+  if(!rawNodes.data) return 
+  return rawNodes.data.map(node => ( { ...node, value: JSON.parse(node.value as string) }))
 }
-export async function getNodesByID(nodes:  { id: string }[]) {
+
+export async function getNodeByID(id: string) {
+  const node = await supabase
+    .from("nodes")
+    .select()
+    .eq("id", id)
+    .single()
+    .then((r) => r.data);
+  return node;
+}
+export async function getNodesByID(nodes: { id: string }[]) {
   return await Promise.all(
     nodes.map((node) => {
       return getNodeByID(node.id);

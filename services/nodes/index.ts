@@ -14,7 +14,6 @@ export async function createNodes(
   await saveNodes(transformedNodes);
   if (returnNodes) {
     const newNodes = await getNodesByID(transformedNodes);
-    console.log(newNodes)
     return newNodes;
   }
 }

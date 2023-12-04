@@ -24,9 +24,8 @@ import { FolioFormContext } from "./context/FolioFormContext";
 import { createNodes } from "@/services/nodes";
 import { NewNode } from "@/types/nodes";
 import { createFolio } from "@/services/folio";
-import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-
+import { Switch } from "@/components/ui/switch";
 export default function NewFolioForm() {
   const [nodes, setNodes] = useState<NewNode[]>([]);
   const folioID = useRef(crypto.randomUUID());
@@ -40,7 +39,7 @@ export default function NewFolioForm() {
       id: folioID.current,
     },
   });
-  const router = useRouter()
+  const router = useRouter();
   const fieldArray = useFieldArray({
     control: form.control,
     name: "nodes",
@@ -69,7 +68,7 @@ export default function NewFolioForm() {
     });
     toast.success("Folio created successfully!");
     setIsLoading(false);
-    router.push("/dashbord")
+    router.push("/dashboard");
   }
 
   return (
@@ -137,6 +136,23 @@ export default function NewFolioForm() {
                     <NodeListPreview nodes={nodes} />
                   </div>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="private"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <FormLabel className="text-base">Private</FormLabel>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      aria-readonly
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />
