@@ -1,6 +1,6 @@
 import { iNode } from "@/types/nodes";
 import React from "react";
-import NodeTypeMapperV1 from "./NodeTypes/v1";
+import Node from "./NodeTypes";
 
 type Props = {
   nodes: iNode[];
@@ -8,10 +8,11 @@ type Props = {
 export default function Nodes(props: Props) {
   const { nodes } = props;
   return (
-    <div className="flex flex-col gap-2">
-      {nodes.map((node) => (
-        <>{node.version === "v1" && <NodeTypeMapperV1 node={node} />}</>
-      ))}
+    <div className="flex flex-col gap-8">
+      {nodes ? nodes.map((node) => (
+        <Node key={node.id} node={node} />
+      )) : <div>
+        No nodes found</div>}
     </div>
   );
 }

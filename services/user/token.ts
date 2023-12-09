@@ -17,7 +17,6 @@ const createAuthJWT = async (id: string | undefined | null) => {
   .setProtectedHeader({ alg })
   .setExpirationTime(AUTH_COOKIE_TOKEN_EXP) // 1 month
   .sign(encodedSecret)
-  console.log(jwt)
   return jwt
 };
 

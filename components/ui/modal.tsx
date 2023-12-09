@@ -1,7 +1,8 @@
 "use client";
-import React, { createContext, useContext, useRef } from "react";
+import React, { createContext, useContext, useEffect, useRef } from "react";
 import Icon from "./Icon";
 import SectionTitle from "../section/title";
+import showScrollbar from "@/utils/showScrollbar";
 
 type IModalContext = {
   isOpen: boolean;
@@ -24,7 +25,12 @@ export default function Modal({
   close: () => void
 }) {
   const modalRef = useRef<HTMLDivElement | null>(null);
-  const onScreenClick = (e: MouseEvent) => {
+
+  const onClose = () => {
+    showScrollbar(true)
+    close()
+  }
+  const onScreenClick = (e: any) => {
     const dimentions = modalRef.current?.getBoundingClientRect();
     if (!dimentions) return;
 
@@ -34,14 +40,16 @@ export default function Modal({
       e.clientY < dimentions?.top ||
       e.clientY > dimentions?.bottom
     ) {
-      close();
+      onClose()
     }
   };
   if (!isOpen) return;
+  showScrollbar(false)
+
   return (
     <ModalContext.Provider value={{ closeModal: close, isOpen }}>
       <div
-        className="fixed z-modal inset-0 bg-black/60 backdrop-blur f-center"
+        className="fixed z-modal inset-0 bg-black/40 backdrop-blur-sm f-center"
         onClick={onScreenClick}
       >
         <div
@@ -54,7 +62,7 @@ export default function Modal({
                 {title ? (
                   <SectionTitle size="medium">{title}</SectionTitle>
                 ) : null}
-                <button className="cursor-pointer" onClick={close}>
+                <button className="cursor-pointer" onClick={onClose}>
                   <Icon name="close" className="" />
                 </button>
               </div>

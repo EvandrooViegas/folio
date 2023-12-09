@@ -44,33 +44,65 @@ export interface Database {
           }
         ]
       }
+      gallery_nodes: {
+        Row: {
+          description: string | null
+          id: string
+          node_id: string
+          title: string | null
+          type: "gallery"
+          url: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          node_id: string
+          title?: string | null
+          type?: Database["public"]["Enums"]["node_types"]
+          url?: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          node_id?: string
+          title?: string | null
+          type?: Database["public"]["Enums"]["node_types"]
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_nodes_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "nodes"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       nodes: {
         Row: {
           created_at: string
           folio_id: string
           id: string
           title: string
+          type: Database["public"]["Enums"]["node_types"]
           user_id: string
-          value: Json
-          version: Database["public"]["Enums"]["node_versions"] | null
         }
         Insert: {
           created_at?: string
           folio_id: string
           id?: string
           title: string
+          type?: Database["public"]["Enums"]["node_types"]
           user_id: string
-          value: Json
-          version?: Database["public"]["Enums"]["node_versions"] | null
         }
         Update: {
           created_at?: string
           folio_id?: string
           id?: string
           title?: string
+          type?: Database["public"]["Enums"]["node_types"]
           user_id?: string
-          value?: Json
-          version?: Database["public"]["Enums"]["node_versions"] | null
         }
         Relationships: [
           {
@@ -85,6 +117,38 @@ export interface Database {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      text_nodes: {
+        Row: {
+          created_at: string
+          id: string
+          node_id: string
+          text: string
+          type: "text"
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          node_id: string
+          text: string
+          type?: Database["public"]["Enums"]["node_types"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          node_id?: string
+          text?: string
+          type?: Database["public"]["Enums"]["node_types"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "text_nodes_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "nodes"
             referencedColumns: ["id"]
           }
         ]
@@ -136,7 +200,7 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      node_versions: "v1"
+      node_types: "gallery" | "text"
     }
     CompositeTypes: {
       [_ in never]: never

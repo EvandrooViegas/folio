@@ -8,6 +8,7 @@ const textNodeSchemaData = z
   .nullable();
 export const textNodeSchema = z.object({
   type: z.literal("text"),
+  node_id: z.string(),
   data: textNodeSchemaData,
 });
 

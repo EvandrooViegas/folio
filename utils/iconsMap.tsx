@@ -7,6 +7,7 @@ import { FiImage } from "react-icons/fi";
 import { LuGalleryVerticalEnd } from "react-icons/lu";
 import { FaRegEye } from "react-icons/fa6";
 import { FaRegEyeSlash } from "react-icons/fa6";
+import { LuMoreVertical } from "react-icons/lu";
 const iconsMap = {
     "more": <BsPlus />,
     "loading": <PiSpinnerGapLight />,
@@ -17,6 +18,7 @@ const iconsMap = {
     "folio": <LuGalleryVerticalEnd />,
     "show": <FaRegEye />,
     "hide": <FaRegEyeSlash />,
+    "more-vertical": <LuMoreVertical />
   }
   export type IconsKeys = keyof typeof iconsMap;
 

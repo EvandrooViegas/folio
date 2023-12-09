@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef } from "react";
 
 import {
   Form,
@@ -13,28 +13,29 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import NodeValue from "./NodeValue";
 import z from "zod";
-import { Node, NodeFormSchema, NodeValue as INodeValue } from "@/types/nodes";
 import { useModalContext } from "@/components/ui/modal";
-import { useFolioFormContext } from "../context/FolioFormContext";
-import { NodeContext } from "../context/NodeContext";
+import { useFolioFormContext } from "./context/FolioFormContext";
+import { NodeContext } from "./context/NodeContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { NodeFormSchema, iNewNodeSchema, iNodeValueSchema } from "@/types/nodes";
 
 export const FormSchema = NodeFormSchema;
 export type Form = z.infer<typeof FormSchema>;
-
-export default function NodeFormModal() {
+type Props = {
+  node: any
+}
+export default function NodeForm() {
   const { closeModal } = useModalContext();
   const { addNode, folio_id } = useFolioFormContext();
-  const [value, setValue] = useState<INodeValue>({ type: "text", data: "" })
-  const nodeForm = useForm<Node>({
+  const id = useRef(crypto.randomUUID())
+  const nodeForm = useForm<iNewNodeSchema>({
     resolver: zodResolver(NodeFormSchema),
     defaultValues: {
       title: "",
-      value ,
-      version: "v1",
+      value: { type: "text", data: "" } ,
       folio_id,
-      id: crypto.randomUUID()
+      id: id.current
     },
   });
 
@@ -44,9 +45,9 @@ export default function NodeFormModal() {
     closeModal();
   }
 
-  const setNodeValue = (nNode: INodeValue) => {
-    nodeForm.setValue("value", nNode)
-    setValue(nNode)
+  const setNodeValue = (nNode: Omit<iNodeValueSchema, "node_id">) => {
+    // @ts-ignore
+    nodeForm.setValue("value", { ...nNode, node_id: id.current })
   }
 
   return (

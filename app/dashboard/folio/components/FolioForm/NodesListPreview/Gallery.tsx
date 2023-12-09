@@ -19,7 +19,7 @@ export default function Gallery(props: Props) {
             key={idx}
           >
             <Image
-              src={image.localPreviewURL}
+              src={image.url}
               alt="Image"
               fill
               className="object-cover bg-black "

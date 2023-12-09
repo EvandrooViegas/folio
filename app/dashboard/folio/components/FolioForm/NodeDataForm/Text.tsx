@@ -1,6 +1,6 @@
 "use client";
 import { Input } from "@/components/ui/input";
-import { useNodeContext } from "../../context/NodeContext";
+import { useNodeContext } from "../context/NodeContext";
 import {
   FormItem,
   FormLabel,

@@ -22,14 +22,12 @@ export async function uploadNodeImage(image: File) {
 }
 
 export async function removeNodeImages(paths: string[]) {
-  console.log(paths)
   if(paths.length <= 0) return 
   await supabase.storage
     .from(NODE_IMAGES_FOLDER)
     .remove(paths);
 }
 export function getNodeImageInfo(imageURL: string) {
-  console.log(imageURL)
   const url = imageURL.split(CDN_URL + "/")[1];
   const [buckedName, userID, image] = url.split("/");
   const [imageName, imageExtension] = image.split(".");

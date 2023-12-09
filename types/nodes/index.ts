@@ -3,21 +3,35 @@ import { textNodeSchema } from "./text/iTextNode";
 import { galleryNodeSchema } from "./gallery/iGalleryNode";
 import { Database } from "@/lib/supabase/database.types";
 
+const nodeValue = z.union([textNodeSchema, galleryNodeSchema])
+const nodeTypes = z.union([z.literal("text"), z.literal("gallery")])
 export const NodeFormSchema = z.object({
   title: z.string().min(2, {
     message: "Title must be at least 2 characters.",
   }),
-  value: z.union([textNodeSchema, galleryNodeSchema]),
-  version: z.literal("v1"),
+  value: nodeValue,
   id: z.string(),
   folio_id: z.string(),
 });
-export type NewNode = z.infer<typeof NodeFormSchema>;
-export type NodeTypes = NewNode["value"]["type"];
-export type NodeValue = NewNode["value"];
+export type iNewNodeSchema = z.infer<typeof NodeFormSchema>;
+export type iNodeValueSchema = z.infer<typeof nodeValue>;
+export type iNodeValueDataSchema = z.infer<typeof nodeValue>["data"];
 
-export type iDatabaseNode = Database['public']['Tables']['nodes']['Row']
-export type iNode = Omit<Database['public']['Tables']['nodes']['Row'], "value"> & {
-  value: NodeValue
-}
-export type iTransformedNode = Omit<iNode, "created_at" | "user_id"> 
+export type iGalleryNodeInsert = Database["public"]["Tables"]["gallery_nodes"]["Insert"]
+export type iTextNodeInsert = Database["public"]["Tables"]["text_nodes"]["Insert"]
+
+export type iGalleryNode = Database["public"]["Tables"]["gallery_nodes"]["Row"]
+export type iTextNode = Database["public"]["Tables"]["text_nodes"]["Row"]
+
+type Value = ({
+  type: "gallery",
+  value: iGalleryNode[] | null
+} | {
+  type: "text",
+  value: iTextNode | null
+} )
+export type iNode = Database["public"]["Tables"]["nodes"]["Row"] & Value
+const n = {} as iNode
+export type iNodeInsert = Database["public"]["Tables"]["nodes"]["Insert"];
+export type iNodeTypes = z.infer<typeof nodeTypes>
+export type iNodeValueInsert = iGalleryNodeInsert  | iTextNodeInsert

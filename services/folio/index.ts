@@ -1,8 +1,7 @@
 import supabase from "@/lib/supabase";
 import { iCompleteFolio, iFolio, iNewFolio } from "@/types/folio";
 import { getAuthedUserID } from "../user";
-import { getNodesByFolioID } from "../nodes/server-actions";
-import { iNode } from "@/types/nodes";
+import { getNodesByFolioID } from "../nodes";
 
 export async function createFolio(folio: Omit<iNewFolio, "user_id">) {
   const userID = await getAuthedUserID();
@@ -10,7 +9,6 @@ export async function createFolio(folio: Omit<iNewFolio, "user_id">) {
   const res = await supabase
     .from("folios")
     .insert({ ...folio, user_id: userID });
-  console.log(res);
 }
 
 export async function fetchUserFolios() {
@@ -27,7 +25,7 @@ type Options = {
 };
 export async function getFolioByID(
   id: string | undefined,
-  options: Options = { include: { nodes: false } }
+  options: Options = { include: { nodes: true } }
 ): Promise<iCompleteFolio | iFolio | undefined | null>   {
   if (!id) return;
   const { include } = options;

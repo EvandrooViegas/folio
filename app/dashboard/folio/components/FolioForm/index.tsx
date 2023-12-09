@@ -15,28 +15,44 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import SectionTitle from "@/components/section/title";
-import NodeFormModal from "./components/NodeFormModal";
+import NodeForm from "./NodeForm";
 import { useRef, useState } from "react";
 import Modal from "@/components/ui/modal";
-import { Folio, FolioSchema } from "@/types/folio";
-import NodeListPreview from "./components/NodesListPreview";
+import { Folio, FolioSchema, iFolio } from "@/types/folio";
+import NodeListPreview from "./NodesListPreview";
 import { FolioFormContext } from "./context/FolioFormContext";
 import { createNodes } from "@/services/nodes";
-import { NewNode } from "@/types/nodes";
 import { createFolio } from "@/services/folio";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
-export default function NewFolioForm() {
-  const [nodes, setNodes] = useState<NewNode[]>([]);
+import { iNewNodeSchema } from "@/types/nodes";
+
+
+
+
+type Props = {
+  folio: iFolio,
+  nodes: iNewNodeSchema[]
+}
+export default function  FolioForm(props?: Props) {
+  const { folio, nodes: propNodes } = props || {}
+  const isEditing = folio || propNodes
+  
+  const defNodes = propNodes || [] as iNewNodeSchema[]
+  const [nodes, setNodes] = useState<iNewNodeSchema[]>(defNodes);
   const folioID = useRef(crypto.randomUUID());
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<Folio>({
     resolver: zodResolver(FolioSchema),
-    defaultValues: {
+    defaultValues: !isEditing ? {
       name: "",
       description: "",
-      nodes: [],
+      nodes:defNodes,
       id: folioID.current,
+    } : {  
+      ...folio,
+      description: folio?.description || "",
+      nodes: propNodes
     },
   });
   const router = useRouter();
@@ -46,12 +62,18 @@ export default function NewFolioForm() {
   });
   const [isOpen, setIsOpen] = useState(false);
 
-  const addNode = (nNode: NewNode) => {
+  const addNode = (nNode: iNewNodeSchema) => {
     const recivedNode = nNode;
     setNodes([recivedNode, ...nodes]);
-
     fieldArray.append(nNode);
   };
+
+const removeNode = (id: string) => {
+  const nNodes = nodes.filter(n => n.id != id)
+  setNodes(nNodes)
+  fieldArray.replace(nNodes)
+}
+
   const openModal = () => {
     setIsOpen(true);
   };
@@ -59,13 +81,12 @@ export default function NewFolioForm() {
     setIsOpen(false);
   };
   async function onSubmit(data: Folio) {
+
     setIsLoading(true);
     //@ts-ignore
     delete data.nodes;
     await createFolio(data);
-    const nNodes = await createNodes(nodes, {
-      returnNodes: true,
-    });
+    await createNodes(nodes);
     toast.success("Folio created successfully!");
     setIsLoading(false);
     router.push("/dashboard");
@@ -73,15 +94,15 @@ export default function NewFolioForm() {
 
   return (
     <FolioFormContext.Provider
-      value={{ form, addNode, folio_id: folioID.current }}
+      value={{ form, addNode, removeNode, folio_id: folioID.current }}
     >
       <div className=" w-full">
         <Modal isOpen={isOpen} close={closeModal} title="Create a new Node">
-          <NodeFormModal />
+          <NodeForm />
         </Modal>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-            <SectionTitle>Create a New Folio</SectionTitle>
+            <SectionTitle>{isEditing ? `Update Your Folio` : `Create a New Folio`}</SectionTitle>
             <FormField
               control={form.control}
               name="name"
@@ -139,7 +160,6 @@ export default function NewFolioForm() {
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="private"
@@ -156,7 +176,7 @@ export default function NewFolioForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" isLoading={isLoading}>
+            <Button type="submit"  isLoading={isLoading}>
               Submit
             </Button>
           </form>

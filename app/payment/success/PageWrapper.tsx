@@ -16,12 +16,10 @@ export default function PageWrapper() {
   const check = async () => {
     setIsLoading(true);
     const isValid = await isCheckoutSessionComplete(sessionID);
-    console.log(isValid);
     if (!isValid) return;
     const usrID = await getAuthedUserID();
     if (!usrID) return errorToast();
     const usr = await getUserByID(usrID);
-    console.log(usr);
 
     if (usr?.pretended_plan && isValid) {
       const d = new Date();

@@ -3,7 +3,7 @@ import z from "zod";
 export const galleryNodeSchemaData = z.object({
   id: z.string(),
   image: z.any().default(null),
-  localPreviewURL: z.string().optional().default(""),
+  url: z.string().optional().default(""),
   title: z
     .string()
     .max(100, {
@@ -18,11 +18,13 @@ export const galleryNodeSchemaData = z.object({
     })
     .default("")
     .optional(),
+    isImageFileLocal: z.boolean()
 });
 export const galleryNodeSchema = z.object({
   type: z.literal("gallery"),
+  node_id: z.string(),
   data: galleryNodeSchemaData.array().nullable(),
 });
 
-export type IGalleryNode = z.infer<typeof galleryNodeSchema>;
-export type IGalleryNodeData = z.infer<typeof galleryNodeSchemaData>;
+export type iGalleryNodeSchema = z.infer<typeof galleryNodeSchema>;
+export type iGalleryNodeDataSchema = z.infer<typeof galleryNodeSchemaData>;

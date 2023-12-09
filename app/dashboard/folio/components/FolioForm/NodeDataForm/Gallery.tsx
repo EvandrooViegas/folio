@@ -13,23 +13,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  IGalleryNode,
-  IGalleryNodeData,
-  galleryNodeSchemaData,
+  galleryNodeSchemaData, iGalleryNodeDataSchema,
 } from "@/types/nodes/gallery/iGalleryNode";
 import getLocalFileURL from "@/utils/getLocalFileURL";
 import getFileInfo from "@/utils/getFileInfo";
-import { useNodeContext } from "../../context/NodeContext";
+import { useNodeContext } from "../context/NodeContext";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { NodeFormSchema } from "@/types/nodes";
 
 export default function Gallery() {
-  const [previewImages, setPreviewImages] = useState<IGalleryNodeData[]>([]);
+  const [previewImages, setPreviewImages] = useState<iGalleryNodeDataSchema[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { setNodeValue } = useNodeContext();
+  const { setNodeValue, form } = useNodeContext();
   const [isCreatingImage, setIsCreatingImage] = useState(false)
-  const newImageForm = useForm<IGalleryNodeData>({
+  const newImageForm = useForm<iGalleryNodeDataSchema>({
     resolver: zodResolver(galleryNodeSchemaData),
     defaultValues: {
       title: "",
@@ -47,8 +44,9 @@ export default function Gallery() {
       const fileInfo = getFileInfo(img);
       if (!fileInfo?.extension || !fileInfo.type) return errorToast();
       newImageForm.setValue("id", crypto.randomUUID());
-      newImageForm.setValue("localPreviewURL",  previewUrl);
+      newImageForm.setValue("url",  previewUrl);
       newImageForm.setValue("image",  img);
+      newImageForm.setValue("isImageFileLocal",  true);
       setIsCreatingImage(true)
     } finally {
       setIsLoading(false);
@@ -88,7 +86,7 @@ export default function Gallery() {
           >
             <div className="relative h-40">
               <Image
-                src={image.localPreviewURL}
+                src={image.url}
                 fill
                 className="object-cover align-top rounded "
                 alt="Image"
@@ -138,7 +136,7 @@ export default function Gallery() {
           <div className="relative w-full h-40 bg-neutral-100 p-2 rounded">
             <Image
               fill
-              src={nImage.localPreviewURL}
+              src={nImage.url}
               alt="New Image"
               className="rounded object-cover"
             />

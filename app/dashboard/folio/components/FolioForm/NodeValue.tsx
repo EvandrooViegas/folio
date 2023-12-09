@@ -3,10 +3,8 @@
 import React, { useState } from "react";
 import Text from "./NodeDataForm/Text";
 import Gallery from "./NodeDataForm/Gallery";
-import { NodeTypes, NodeValue, Node } from "@/types/nodes";
-import { types } from "./nodeTypes";
 import { ControllerRenderProps } from "react-hook-form";
-
+import { types } from "./nodeTypes"
 type Props = {
   field: ControllerRenderProps<Node, "value.data">;
 };
