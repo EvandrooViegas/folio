@@ -18,25 +18,33 @@ import { useFolioFormContext } from "./context/FolioFormContext";
 import { NodeContext } from "./context/NodeContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { NodeFormSchema, iNewNodeSchema, iNodeValueSchema } from "@/types/nodes";
+import {
+  NodeFormSchema,
+  iNewNodeSchema,
+  iNodeValueSchema,
+} from "@/types/nodes";
 
 export const FormSchema = NodeFormSchema;
 export type Form = z.infer<typeof FormSchema>;
 type Props = {
-  node: any
-}
-export default function NodeForm() {
+  node?: iNewNodeSchema;
+};
+export default function NodeForm(props: Props) {
+  const { node } = props;
+  const isEditing = !!node;
   const { closeModal } = useModalContext();
   const { addNode, folio_id } = useFolioFormContext();
-  const id = useRef(crypto.randomUUID())
+  const id = useRef(crypto.randomUUID());
   const nodeForm = useForm<iNewNodeSchema>({
     resolver: zodResolver(NodeFormSchema),
-    defaultValues: {
-      title: "",
-      value: { type: "text", data: "" } ,
-      folio_id,
-      id: id.current
-    },
+    defaultValues: isEditing
+      ? node
+      : {
+          title: "",
+          value: { type: "text", data: "" },
+          folio_id,
+          id: id.current,
+        },
   });
 
   function onSubmit() {
@@ -47,12 +55,17 @@ export default function NodeForm() {
 
   const setNodeValue = (nNode: Omit<iNodeValueSchema, "node_id">) => {
     // @ts-ignore
-    nodeForm.setValue("value", { ...nNode, node_id: id.current })
-  }
+    nodeForm.setValue("value", { ...nNode, node_id: id.current });
+  };
 
   return (
     <NodeContext.Provider
-      value={{ setNodeValue, form: nodeForm }}
+      value={{
+        setNodeValue,
+        form: nodeForm,
+        node: nodeForm.getValues(),
+        isEditing: !!node,
+      }}
     >
       <Form {...nodeForm}>
         <div className="space-y-2">
@@ -88,7 +101,7 @@ export default function NodeForm() {
             className="mt-4"
             onClick={nodeForm.handleSubmit(onSubmit)}
           >
-            Create
+            {!isEditing ? 'Create' : 'Save'}
           </Button>
         </div>
       </Form>

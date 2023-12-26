@@ -35,4 +35,3 @@ export function getNodeImageInfo(imageURL: string) {
   return { buckedName, userID, image, imageName, imageExtension, path };
 }
 
-export async function deleteNodeImages(images: string[]) {}

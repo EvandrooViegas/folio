@@ -23,10 +23,10 @@ export default async function RootLayout({
   const authedUser = await getAuthedUser();
   return (
     <div>
-      <main className="w-full h-screen p-12">{children}</main>
+      <main className="w-full min-h-screen p-12">{children}</main>
       <footer className="flex justify-between items-center p-6 border-t border-skeleton shadow-lg">
         {!!folioOwner && (
-          <div className="flex items-center gap-2 ">
+          <div className=" flex items-center gap-2 ">
             <Image
               src={folioOwner.profile_avatar || ""}
               alt="Folio Owner"
@@ -35,12 +35,15 @@ export default async function RootLayout({
               className="rounded-full object-center"
             />
             <Link href={`/profile/${folioOwner.id}`}>
-            <span className="font-semibold underline text-dimmed">@{folioOwner.username}</span></Link>
+              <span className="font-semibold underline text-dimmed">
+                @{folioOwner.username}
+              </span>
+            </Link>
           </div>
         )}
-    <div className="text-sm font-semibold text-dimmed">
-        {date.format(folio?.created_at)}
-    </div>
+        <div className="text-sm font-semibold text-dimmed">
+          {date.format(folio?.created_at)}
+        </div>
       </footer>
     </div>
   );

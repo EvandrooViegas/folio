@@ -1,5 +1,5 @@
 "use client";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useNodeContext } from "../context/NodeContext";
 import {
   FormItem,
@@ -13,7 +13,7 @@ type Props = {
   field: ControllerRenderProps<Node, "value.data">;
 }
 export default function Text(props: Props) {
-  const { setNodeValue } = useNodeContext();
+  const { setNodeValue, node } = useNodeContext();
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNodeValue({
       type: "text",
@@ -21,7 +21,7 @@ export default function Text(props: Props) {
     });
   };
   return (
-      <Input onChange={onChange} />
+      <Textarea onChange={onChange} defaultValue={node.value.data} className="h-44 resize-none p-5"  />
   )
     
 }

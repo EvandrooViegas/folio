@@ -3,7 +3,7 @@ import React from "react";
 import cms from "./cms.png";
 import dashboard from "./dashboard.png";
 import Feature from "./feature";
-import Section from "@/app/(Home)/Section/section.index";
+import Section from "../Section";
 
 const features = [
   {

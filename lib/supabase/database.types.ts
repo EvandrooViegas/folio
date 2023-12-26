@@ -50,7 +50,7 @@ export interface Database {
           id: string
           node_id: string
           title: string | null
-          type: "gallery"
+          type: Database["public"]["Enums"]["node_types"]
           url: string
         }
         Insert: {
@@ -127,7 +127,7 @@ export interface Database {
           id: string
           node_id: string
           text: string
-          type: "text"
+          type: Database["public"]["Enums"]["node_types"]
         }
         Insert: {
           created_at?: string
@@ -192,6 +192,38 @@ export interface Database {
         }
         Relationships: []
       }
+      video_nodes: {
+        Row: {
+          created_at: string
+          id: number
+          node_id: string | null
+          provider: Database["public"]["Enums"]["video_providers"] | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          node_id?: string | null
+          provider?: Database["public"]["Enums"]["video_providers"] | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          node_id?: string | null
+          provider?: Database["public"]["Enums"]["video_providers"] | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_nodes_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "nodes"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -200,7 +232,8 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      node_types: "gallery" | "text"
+      node_types: "gallery" | "text" | "video"
+      video_providers: "local" | "youtube"
     }
     CompositeTypes: {
       [_ in never]: never

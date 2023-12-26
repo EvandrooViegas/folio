@@ -18,7 +18,7 @@ import SectionTitle from "@/components/section/title";
 import NodeForm from "./NodeForm";
 import { useRef, useState } from "react";
 import Modal from "@/components/ui/modal";
-import { Folio, FolioSchema, iFolio } from "@/types/folio";
+import { Folio, FolioSchema, iCompleteFolio, iFolio } from "@/types/folio";
 import NodeListPreview from "./NodesListPreview";
 import { FolioFormContext } from "./context/FolioFormContext";
 import { createNodes } from "@/services/nodes";
@@ -26,20 +26,21 @@ import { createFolio } from "@/services/folio";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { iNewNodeSchema } from "@/types/nodes";
+import { transformNodes } from "./transformNodes";
 
 
 
 
 type Props = {
-  folio: iFolio,
-  nodes: iNewNodeSchema[]
+  folio: iCompleteFolio,
 }
 export default function  FolioForm(props?: Props) {
-  const { folio, nodes: propNodes } = props || {}
-  const isEditing = folio || propNodes
+  const { folio } = props || {}
+  const isEditing = !!folio
+  const folioNodes = folio?.nodes
   
-  const defNodes = propNodes || [] as iNewNodeSchema[]
-  const [nodes, setNodes] = useState<iNewNodeSchema[]>(defNodes);
+  const defaultNodes = folioNodes ? transformNodes(folioNodes) : [] as iNewNodeSchema[]
+  const [nodes, setNodes] = useState<iNewNodeSchema[]>(defaultNodes);
   const folioID = useRef(crypto.randomUUID());
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<Folio>({
@@ -47,12 +48,12 @@ export default function  FolioForm(props?: Props) {
     defaultValues: !isEditing ? {
       name: "",
       description: "",
-      nodes:defNodes,
+      nodes:defaultNodes,
       id: folioID.current,
     } : {  
       ...folio,
       description: folio?.description || "",
-      nodes: propNodes
+      nodes: defaultNodes
     },
   });
   const router = useRouter();

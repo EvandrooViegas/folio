@@ -3,8 +3,6 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
-import { PiSpinnerGapLight } from "react-icons/pi";
-import { BsPlus } from "react-icons/bs"
 import iconsMap, { IconsKeys } from "@/utils/iconsMap";
 import Icon from "./Icon";
 const buttonVariants = cva(
@@ -13,6 +11,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        badge: "text-xs font-bold flex rounded-full gap-2 cursor-pointer items-center border px-2 py-1.5",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
@@ -28,6 +27,7 @@ const buttonVariants = cva(
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
+        badge: "px-3 py-1.5"
       },
     },
     defaultVariants: {
@@ -40,18 +40,22 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   isLoading?: boolean;
+  isSelected?: boolean;
   icon?: IconsKeys
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, isLoading, icon, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, isLoading, icon, isSelected, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }), "flex gap-2") }
+        className={cn(
+          buttonVariants(
+            { variant, size, className }),
+          "flex gap-2", variant === "badge" ? `${isSelected ? 'text-primary' : 'text-dimmed'}` : '')}
         ref={ref}
         disabled={isLoading}
         type="button"
@@ -59,14 +63,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {props.children ? props.children : null}
         {icon ? (
-         <Icon name={icon} />
+          <Icon name={icon} />
         ) : null}
         {isLoading && (
           <span className="animate-spin">
             {iconsMap.loading}
           </span>
         )}
-        
+
       </Comp>
     );
   }

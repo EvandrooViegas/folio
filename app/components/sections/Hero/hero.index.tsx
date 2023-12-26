@@ -1,5 +1,5 @@
-import Section from "@/app/(Home)/Section/section.index";
-import image from "../../image.jpg";
+import Section from "../Section";
+import image from "./image.jpg";
 import Image from "next/image";
 export default function Hero() {
   return (

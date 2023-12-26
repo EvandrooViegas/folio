@@ -20,13 +20,21 @@ import getFileInfo from "@/utils/getFileInfo";
 import { useNodeContext } from "../context/NodeContext";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 export default function Gallery() {
-  const [previewImages, setPreviewImages] = useState<iGalleryNodeDataSchema[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { setNodeValue, form } = useNodeContext();
-  const [isCreatingImage, setIsCreatingImage] = useState(false)
-  const newImageForm = useForm<iGalleryNodeDataSchema>({
+  const { setNodeValue, form, node, isEditing } = useNodeContext();
+  const [previewImages, setPreviewImages] = useState<iGalleryNodeDataSchema[]>(node.value.data || []);
+
+  const [imageToEdit, setImageEdit] = useState(null)
+  const imageForm = useForm<iGalleryNodeDataSchema>({
     resolver: zodResolver(galleryNodeSchemaData),
     defaultValues: {
       title: "",
@@ -43,10 +51,10 @@ export default function Gallery() {
       if (!previewUrl) return errorToast();
       const fileInfo = getFileInfo(img);
       if (!fileInfo?.extension || !fileInfo.type) return errorToast();
-      newImageForm.setValue("id", crypto.randomUUID());
-      newImageForm.setValue("url",  previewUrl);
-      newImageForm.setValue("image",  img);
-      newImageForm.setValue("isImageFileLocal",  true);
+      imageForm.setValue("id", crypto.randomUUID());
+      imageForm.setValue("url", previewUrl);
+      imageForm.setValue("image", img);
+      imageForm.setValue("isImageFileLocal", true);
       setIsCreatingImage(true)
     } finally {
       setIsLoading(false);
@@ -54,14 +62,14 @@ export default function Gallery() {
   };
 
   const addPreviewImage = () => {
-    const nImage = newImageForm.getValues()
+    const nImage = imageForm.getValues()
     const nImages = [nImage, ...previewImages];
     setPreviewImages(nImages);
     setNodeValue({ type: "gallery", data: nImages });
     setIsCreatingImage(false)
-    newImageForm.reset()
+    imageForm.reset()
   };
-  const nImage = newImageForm.getValues()
+  const nImage = imageForm.getValues()
   return (
     <div className="flex flex-col gap-2">
       <div>
@@ -81,7 +89,7 @@ export default function Gallery() {
       <div className="grid grid-cols-2 gap-4 w-full">
         {previewImages.map((image) => (
           <div
-            className="flex flex-col gap-0.5 border border-dashed border-neutral-300 p-3 rounded"
+            className="relative flex flex-col gap-0.5 border border-dashed border-neutral-300 p-3 rounded"
             key={image.id}
           >
             <div className="relative h-40">
@@ -98,14 +106,30 @@ export default function Gallery() {
             <span className="truncate text-xs text-dimmed ">
               {image.description}
             </span>
+            <div className="text-neutral-500 absolute  right-2 bottom-2  cursor-pointer">
+              
+              <DropdownMenu  >
+                <DropdownMenuTrigger  />
+                <DropdownMenuContent className="w-56 ">
+                  <DropdownMenuLabel>Options</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setIsEditingImage(node)}>
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => openModal(node)}>
+                    Remove
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         ))}
       </div>
 
-      {isCreatingImage && (
+      {isCreatingImage || isEditingImage && (
         <div className="border border-input border-dashed p-4 space-y-4">
           <FormField
-            control={newImageForm.control}
+            control={imageForm.control}
             name="title"
             render={({ field }) => (
               <FormItem>
@@ -118,7 +142,7 @@ export default function Gallery() {
             )}
           />
           <FormField
-            control={newImageForm.control}
+            control={imageForm.control}
             name="description"
             render={({ field }) => (
               <FormItem>
@@ -147,7 +171,7 @@ export default function Gallery() {
               size={"sm"}
               className="mt-4"
               variant="outline"
-              onClick={newImageForm.handleSubmit(addPreviewImage)}
+              onClick={imageForm.handleSubmit(addPreviewImage)}
             >
               Add
             </Button>

@@ -1,5 +1,5 @@
 import Icon from "@/components/ui/Icon";
-import { NewNode } from "@/types/nodes";
+import { iNewNodeSchema } from "@/types/nodes";
 
 import React, { useState } from "react";
 import Text from "./Text";
@@ -16,27 +16,30 @@ import Modal from "@/components/ui/modal";
 import NodeForm from "../NodeForm";
 
 type Props = {
-  nodes: NewNode[];
+  nodes: iNewNodeSchema[];
 };
 export default function NodeListPreview(props: Props) {
   const { nodes } = props;
   const [isOpen, setIsOpen] = useState(false);
-
-  const openModal = () => {
+  const [selectedNode, setSelectedNode] = useState<null | iNewNodeSchema>(null)
+  const openModal = (n: iNewNodeSchema) => {
     setIsOpen(true);
+    setSelectedNode(n)
   };
   const closeModal = () => {
     setIsOpen(false);
   };
   return (
     <div>
+      {selectedNode && (
+        <Modal isOpen={isOpen} close={closeModal} title="Update a node">
+          <NodeForm node={selectedNode} />
+        </Modal>
+      )}
       {nodes.length > 0 ? (
         <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6  grid-cols-1 gap-4 max-w-[2000px] max-h-[300px]  mx-auto">
           {nodes.map((node, idx) => (
             <div className="flex flex-col gap-3 p-1 text-dimmed" key={idx}>
-              <Modal isOpen={isOpen} close={closeModal} title="Update a node">
-                <NodeForm node={node} />
-              </Modal>
               <div className="flex items-center gap-1 relative w-full ">
                 <span className="font-semibold truncate text-sm">
                   {node.title}
@@ -47,7 +50,7 @@ export default function NodeListPreview(props: Props) {
                     <DropdownMenuContent className="w-56">
                       <DropdownMenuLabel>Options</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={openModal}>
+                      <DropdownMenuItem onClick={() => openModal(node)}>
                         Edit
                       </DropdownMenuItem>
                     </DropdownMenuContent>

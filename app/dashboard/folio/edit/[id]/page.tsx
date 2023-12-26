@@ -1,18 +1,15 @@
 import { getFolioByID } from '@/services/folio'
-import { getNodesByFolioID, getNodesByID } from '@/services/nodes/server-actions'
-import { prepareNodesForForm } from '@/services/nodes/transformers'
-import React from 'react'
 import FolioForm from '../../components/FolioForm'
+import { iCompleteFolio } from '@/types/folio'
 
 type Props = {
   params: { id: string }
 }
 export default async function page(props: Props) {
   const { params: { id} } = props 
-  const [folio, nodes] = await Promise.all([getFolioByID(id), getNodesByFolioID(id)])
-  const preparedNodes = await prepareNodesForForm(nodes)
-  if(!folio || !nodes) return "An error occured"
+  const folio = await getFolioByID(id) as iCompleteFolio
+  if(!folio) return "An error occured"
   return (
-    <FolioForm folio={folio} nodes={preparedNodes} />
+    <FolioForm folio={folio} />
   )
 }

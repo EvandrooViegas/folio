@@ -6,21 +6,20 @@ import {
 } from "@/types/nodes";
 import { iGalleryNodeDataSchema } from "@/types/nodes/gallery/iGalleryNode";
 import { uploadNodeImage } from "../storage/images";
+import { uploadNodeVideo } from "../storage/videos";
 
 export async function insertNodesValue(nodeValues: iNodeValueSchema[]) {
   await Promise.all(
     nodeValues.map(async (node) => {
-      
-      console.log(node.node_id)
       switch (node.type) {
         case "text": {
           return await supabase.from("text_nodes").insert({
             text: node.data || "",
+            type: "text",
             node_id: node.node_id,
           });
-     
         }
-        case "gallery":
+        case "gallery": {
           return await Promise.all(
             node.data
               ? node.data.map(async (value) => {
@@ -37,6 +36,15 @@ export async function insertNodesValue(nodeValues: iNodeValueSchema[]) {
                 })
               : []
           );
+        }
+
+        case "video": {
+          return await supabase.from("video_nodes").insert({
+            provider: node.data.provider,
+            url: await uploadNodeVideo(node.data.video) ,
+            node_id: node.node_id,
+          });
+        }
       }
     })
   );
@@ -64,6 +72,13 @@ export async function getNodeValue(type: iNodeTypes, nodeID: string) {
         .from("gallery_nodes")
         .select()
         .eq("node_id", nodeID)
+        .then((r) => r.data);
+    case "video":
+      return await supabase
+        .from("video_nodes")
+        .select()
+        .eq("node_id", nodeID)
+        .single()
         .then((r) => r.data);
   }
 }

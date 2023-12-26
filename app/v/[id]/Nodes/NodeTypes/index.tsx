@@ -1,8 +1,9 @@
 "use client"
 import { iNode, iNodeTypes } from "@/types/nodes";
 import Gallery from "./Gallery";
-import { createContext, useContext } from "react";
+import Video from "./Video";
 import Text from "./Text";
+import { createContext, useContext } from "react";
 import Title from "@/components/section/title";
 
 type Props = {
@@ -19,10 +20,10 @@ export const useNodeContext = () => {
 const mapper = new Map<iNodeTypes, React.ReactNode>([
   ["gallery", <Gallery key="1" />],
   ["text", <Text key="2" />],
+  ["video", <Video key="3" />],
 ]);
 export default function Node(props: Props) {
   const { node } = props;
-  console.log("node: ", node)
   return (
     <NodeContext.Provider value={{ node }}>
       <div className="space-y-2">

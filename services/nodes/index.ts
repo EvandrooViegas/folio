@@ -53,7 +53,6 @@ async function getNodeByAttr(attr: keyof iNodeInsert, v: any) {
 
 async function getNodesByAttr(attr: keyof iNodeInsert, v: any) {
   const { data: nodes } = await supabase.from("nodes").select().eq(attr, v);
-  console.log(nodes)
   if (!nodes) return;
   // @ts-ignore
   return await Promise.all(

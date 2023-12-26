@@ -7,7 +7,15 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Icon from "./Icon";
 
-const DropdownMenu = DropdownMenuPrimitive.Root;
+const DropdownMenu = (
+  props: React.ComponentProps<typeof DropdownMenuPrimitive.Root>
+) => {
+  return (
+    <DropdownMenuPrimitive.Root >
+    {props.children}
+    </DropdownMenuPrimitive.Root>
+  )
+}
 
 const DropdownMenuTrigger = (
   props: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>

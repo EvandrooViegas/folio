@@ -1,5 +1,4 @@
-import Section from '@/app/(Home)/Section/section.index'
-import React from 'react'
+import Section from '../Section'
 
 export default function About() {
   return (

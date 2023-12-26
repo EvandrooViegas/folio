@@ -7,6 +7,8 @@ import {  UseFieldArrayReturn, UseFormReturn } from "react-hook-form";
 type INodeContext = {
   setNodeValue: (nValue: Omit<iNodeValueSchema, "node_id">) => void
   form: UseFormReturn<iNewNodeSchema>
+  node: iNewNodeSchema
+  isEditing: boolean
 };
 
 export const NodeContext = createContext({} as INodeContext);

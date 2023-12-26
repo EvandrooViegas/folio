@@ -18,8 +18,10 @@
 }
 
 .z-modal {
-  z-index: 200;
+  z-index: 50;
 }
+
+
 .f-center {
   display: flex;
   justify-content: center;

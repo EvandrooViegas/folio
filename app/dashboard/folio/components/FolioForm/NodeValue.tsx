@@ -2,35 +2,41 @@
 
 import React, { useState } from "react";
 import Text from "./NodeDataForm/Text";
+import Video from "./NodeDataForm/Video";
 import Gallery from "./NodeDataForm/Gallery";
+import { Button } from "@/components/ui/button";
 import { ControllerRenderProps } from "react-hook-form";
 import { types } from "./nodeTypes"
+import { useNodeContext } from "./context/NodeContext"
 type Props = {
   field: ControllerRenderProps<Node, "value.data">;
 };
 export default function NodeValue(props: Props) {
-  const [type, setType] = useState<NodeTypes>("text");
+  const { setNodeValue, form, node, isEditing } = useNodeContext();
+  const [type, setType] = useState<NodeTypes>(node.value.type);
   const isSelectedType = (t: NodeTypes) => t === type;
   const { field } = props;
   return (
     <div className="space-y-1">
       <div className="flex flex-wrap gap-1">
-        {types.map((type) => (
-          <div
+        {types.map((type, idx) => (
+          <Button
             onClick={() => setType(type.name)}
-            className={`text-xs font-bold flex rounded-full gap-2 cursor-pointer items-center border px-3 py-1.5 ${
-              isSelectedType(type.name) ? "text-primary " : "text-dimmed"
-            }`}
-            key={type.name}
+            variant="badge"
+            size="badge"
+            disabled={isEditing && node.value.type !== type.name}
+            isSelected={ isSelectedType(type.name) }
+            key={idx}
           >
             <span>{type.name}</span>
             <span>{type.icon}</span>
-          </div>
+          </Button>
         ))}
       </div>
       <div className="min-w-[500px] ">
         {type === "text" && <Text field={field} />}
         {type === "gallery" && <Gallery />}
+        {type === "video" && <Video />}
       </div>
     </div>
   );
