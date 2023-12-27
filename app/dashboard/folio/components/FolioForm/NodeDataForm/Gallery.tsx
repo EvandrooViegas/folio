@@ -13,10 +13,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  galleryNodeSchemaData, iGalleryNodeDataSchema,
+  galleryNodeSchemaData,
+  iGalleryNodeDataSchema,
 } from "@/types/nodes/gallery/iGalleryNode";
 import getLocalFileURL from "@/utils/getLocalFileURL";
-import getFileInfo from "@/utils/getFileInfo";
 import { useNodeContext } from "../context/NodeContext";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,12 +28,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Title from "@/components/section/title";
 export default function Gallery() {
   const [isLoading, setIsLoading] = useState(false);
-  const { setNodeValue, form, node, isEditing } = useNodeContext();
-  const [previewImages, setPreviewImages] = useState<iGalleryNodeDataSchema[]>(node.value.data || []);
+  const { setNodeValue, node } = useNodeContext();
+  const [previewImages, setPreviewImages] = useState(
+    node.value.data || ([] as iGalleryNodeDataSchema[])
+  );
+  const [isCreatingImage, setIsCreatingImage] = useState(false);
 
-  const [imageToEdit, setImageEdit] = useState(null)
+  const [isEditingImage, setIsEditingImage] = useState(false);
+
   const imageForm = useForm<iGalleryNodeDataSchema>({
     resolver: zodResolver(galleryNodeSchemaData),
     defaultValues: {
@@ -42,43 +47,86 @@ export default function Gallery() {
     },
   });
 
+  const editImage = (image: iGalleryNodeDataSchema) => {
+    setIsEditingImage(true);
+    imageForm.reset();
+    imageForm.setValue("description", image.description);
+    imageForm.setValue("title", image.title);
+    imageForm.setValue("url", image.url);
+    imageForm.setValue("id", image.id);
+  };
+
   const onFileUpload = async (e: React.FormEvent<HTMLInputElement>) => {
     try {
       setIsLoading(true);
-
       const img = (e.target as HTMLInputElement).files?.[0];
       const previewUrl = await getLocalFileURL(img);
       if (!previewUrl) return errorToast();
-      const fileInfo = getFileInfo(img);
-      if (!fileInfo?.extension || !fileInfo.type) return errorToast();
-      imageForm.setValue("id", crypto.randomUUID());
+
+      if (!isEditingImage) {
+        imageForm.reset();
+      }
       imageForm.setValue("url", previewUrl);
       imageForm.setValue("image", img);
       imageForm.setValue("isImageFileLocal", true);
-      setIsCreatingImage(true)
+
+      if (!isEditingImage) {
+        imageForm.setValue("id", crypto.randomUUID());
+        setIsCreatingImage(true);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const addPreviewImage = () => {
-    const nImage = imageForm.getValues()
-    const nImages = [nImage, ...previewImages];
-    setPreviewImages(nImages);
-    setNodeValue({ type: "gallery", data: nImages });
-    setIsCreatingImage(false)
-    imageForm.reset()
+  const setNewImages = (
+    nImages: iGalleryNodeDataSchema[],
+    reset: boolean = true
+  ) => {
+    setPreviewImages([...nImages]);
+    setNodeValue({ type: "gallery", data: [...nImages] });
+    if (reset) {
+      cancel();
+      imageForm.reset();
+    }
   };
-  const nImage = imageForm.getValues()
+
+  const removeImage = (id: string) => {
+    const filtredList = previewImages.filter((img) => img.id !== id);
+    setNewImages(filtredList, false);
+  };
+  const handleAddImage = () => {
+    const nImage = imageForm.getValues();
+    const nImages = [nImage, ...previewImages];
+    setNewImages(nImages);
+  };
+
+  const handleEditImage = () => {
+    const nImage = imageForm.getValues();
+    const filtredImages = previewImages.filter((img) => img.id !== nImage.id);
+    filtredImages.push(nImage);
+    setNewImages(filtredImages);
+  };
+
+  const cancel = () => {
+    if (isEditingImage) {
+      setIsEditingImage(false);
+    } else {
+      setIsCreatingImage(false);
+    }
+  };
+  const shouldShowForm = isEditingImage || isCreatingImage;
+  const currImage = imageForm.getValues();
   return (
     <div className="flex flex-col gap-2">
       <div>
         <FormItem>
-          <FormLabel>Upload a image</FormLabel>
           <Input
+            iconName="more"
             id="picture"
             type="file"
-            label="Picture"
+            label="Add a new image"
+            disabled={isEditingImage}
             accept="image/png,image/jpeg"
             onFileUpload={onFileUpload}
             isLoading={isLoading}
@@ -107,27 +155,34 @@ export default function Gallery() {
               {image.description}
             </span>
             <div className="text-neutral-500 absolute  right-2 bottom-2  cursor-pointer">
-              
-              <DropdownMenu  >
-                <DropdownMenuTrigger  />
+              <DropdownMenu>
+                <DropdownMenuTrigger />
                 <DropdownMenuContent className="w-56 ">
                   <DropdownMenuLabel>Options</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setIsEditingImage(node)}>
+                  <DropdownMenuItem onClick={() => editImage(image)}>
                     Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => openModal(node)}>
+                  <DropdownMenuItem onClick={() => removeImage(image.id)}>
                     Remove
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+            {currImage.id === image.id && isEditingImage && (
+              <div className="absolute inset-0 flex justify-center bg-neutral-700/80 text-white font-bold items-center">
+                Being Edited...
+              </div>
+            )}
           </div>
         ))}
       </div>
 
-      {isCreatingImage || isEditingImage && (
+      {shouldShowForm && (
         <div className="border border-input border-dashed p-4 space-y-4">
+          <Title size="sm">
+            {isEditingImage ? "Edit a Image" : "Add a Image"}
+          </Title>
           <FormField
             control={imageForm.control}
             name="title"
@@ -157,23 +212,51 @@ export default function Gallery() {
               </FormItem>
             )}
           />
-          <div className="relative w-full h-40 bg-neutral-100 p-2 rounded">
-            <Image
-              fill
-              src={nImage.url}
-              alt="New Image"
-              className="rounded object-cover"
-            />
+          <div className="space-y-2">
+            <div className="relative w-full h-40 bg-neutral-100 p-2 rounded">
+              <Image
+                fill
+                src={imageForm.getValues("url")}
+                alt="Image"
+                className="rounded object-cover"
+              />
+            </div>
+            {isEditingImage && (
+              <FormItem>
+                <FormLabel>Upload a image</FormLabel>
+                <Input
+                  id="picture"
+                  type="file"
+                  label="Edit your Image"
+                  accept="image/png,image/jpeg"
+                  onFileUpload={onFileUpload}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-1 items-center">
             <Button
-              type="submit"
+              type="button"
               size={"sm"}
               className="mt-4"
               variant="outline"
-              onClick={imageForm.handleSubmit(addPreviewImage)}
+              onClick={
+                isEditingImage
+                  ? imageForm.handleSubmit(handleEditImage)
+                  : imageForm.handleSubmit(handleAddImage)
+              }
             >
-              Add
+              {isEditingImage ? "Edit" : "Add"}
+            </Button>
+            <Button
+              type="button"
+              size={"sm"}
+              className="mt-4"
+              variant="underline"
+              onClick={cancel}
+            >
+              Cancel
             </Button>
           </div>
         </div>

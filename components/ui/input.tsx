@@ -1,13 +1,14 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import iconsMap from "@/utils/iconsMap";
+import iconsMap, { IconsKeys } from "@/utils/iconsMap";
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   fileType?: "image";
   isLoading?: boolean;
+  iconName?: IconsKeys;
   onFileUpload?: (e: React.FormEvent<HTMLInputElement>) => void;
 }
 
@@ -16,26 +17,36 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     {
       className,
       type,
-      label,
+      label = "Choose a file",
       id,
+      iconName,
       isLoading,
       fileType = "image",
+      disabled = false,
       onFileUpload,
       ...props
     },
     ref
   ) => {
+    const isDisabled = disabled || isLoading
+
     switch (type) {
       case "file": {
         return (
-          <div className="flex items-center gap-2 transition-all px-4 py-1 w-fit rounded text-dimmed  border border-input  disabled:opacity-80 disabled:cursor-not-allowed">
+          <div
+            className={`flex items-center gap-2 transition-all px-4 py-1 w-fit rounded text-dimmed  border border-input  ${
+              isDisabled ? "opacity-50  cursor-not-allowed" : "opacity-100 cursor-pointer"
+            }`}
+          >
+            <span>{iconName ? iconsMap[iconName] : iconsMap.file}</span>
+
             <label htmlFor={id} className="text-sm">
-              Choose a file
+              {label}
             </label>
             <input
               id={id}
               type={type}
-              disabled={isLoading}
+              disabled={false}
               onInput={onFileUpload}
               className={cn("hidden", className)}
               ref={ref}

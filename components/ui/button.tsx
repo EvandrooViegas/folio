@@ -12,6 +12,7 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         badge: "text-xs font-bold flex rounded-full gap-2 cursor-pointer items-center border px-2 py-1.5",
+        underline: "underline",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:

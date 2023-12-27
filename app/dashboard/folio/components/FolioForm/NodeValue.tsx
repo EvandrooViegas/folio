@@ -34,7 +34,7 @@ export default function NodeValue(props: Props) {
         ))}
       </div>
       <div className="min-w-[500px] ">
-        {type === "text" && <Text field={field} />}
+        {type === "text" && <Text />}
         {type === "gallery" && <Gallery />}
         {type === "video" && <Video />}
       </div>

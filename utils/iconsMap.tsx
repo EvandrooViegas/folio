@@ -9,10 +9,13 @@ import { FaRegEye } from "react-icons/fa6";
 import { FaRegEyeSlash } from "react-icons/fa6";
 import { LuMoreVertical } from "react-icons/lu";
 import { MdOutlineOndemandVideo } from "react-icons/md"
+import { FaRegFileAlt } from "react-icons/fa";
+
 const iconsMap = {
     "more": <BsPlus />,
     "loading": <PiSpinnerGapLight />,
     "close": <IoClose />,
+    "file": <FaRegFileAlt />,
     "empty": <FiAlertOctagon />,
     "node-text": <IoText />,
     "node-gallery": <FiImage />,
