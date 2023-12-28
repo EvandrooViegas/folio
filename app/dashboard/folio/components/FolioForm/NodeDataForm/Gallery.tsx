@@ -33,8 +33,9 @@ export default function Gallery() {
   const [isLoading, setIsLoading] = useState(false);
   const { setNodeValue, node } = useNodeContext();
   const [previewImages, setPreviewImages] = useState(
-    node.value.data || ([] as iGalleryNodeDataSchema[])
+    (node.value.data || []) as iGalleryNodeDataSchema[]
   );
+  console.log(previewImages);
   const [isCreatingImage, setIsCreatingImage] = useState(false);
 
   const [isEditingImage, setIsEditingImage] = useState(false);
@@ -83,8 +84,8 @@ export default function Gallery() {
     nImages: iGalleryNodeDataSchema[],
     reset: boolean = true
   ) => {
-    setPreviewImages([...nImages]);
-    setNodeValue({ type: "gallery", data: [...nImages] });
+    // setNodeValue({ type: "gallery", data: nImages });
+    setPreviewImages(nImages);
     if (reset) {
       cancel();
       imageForm.reset();
@@ -93,7 +94,7 @@ export default function Gallery() {
 
   const removeImage = (id: string) => {
     const filtredList = previewImages.filter((img) => img.id !== id);
-    setNewImages(filtredList, false);
+    setNewImages(filtredList);
   };
   const handleAddImage = () => {
     const nImage = imageForm.getValues();
@@ -137,7 +138,7 @@ export default function Gallery() {
       <div className="grid grid-cols-2 gap-4 w-full">
         {previewImages.map((image) => (
           <div
-            className="relative flex flex-col gap-0.5 border border-dashed border-neutral-300 p-3 rounded"
+            className="group relative flex flex-col gap-0.5 border border-dashed border-neutral-300 p-3 rounded"
             key={image.id}
           >
             <div className="relative h-40">
@@ -154,21 +155,25 @@ export default function Gallery() {
             <span className="truncate text-xs text-dimmed ">
               {image.description}
             </span>
-            <div className="text-neutral-500 absolute  right-2 bottom-2  cursor-pointer">
-              <DropdownMenu>
-                <DropdownMenuTrigger />
-                <DropdownMenuContent className="w-56 ">
-                  <DropdownMenuLabel>Options</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => editImage(image)}>
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => removeImage(image.id)}>
-                    Remove
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+
+            {!isEditingImage && (
+              <div className="transition-all absolute inset-0 opacity-0 group-hover:opacity-100 flex gap-0 flex-col justify-center items-center text-white  bg-black/60">
+              <Button
+                size="sm"
+                variant="underline"
+                onClick={() => editImage(image)}
+              >
+                Edit
+              </Button>
+              <Button
+                size="sm"
+                variant="underline"
+                onClick={() => removeImage(image.id)}
+              >
+                Delete
+              </Button>
             </div>
+            )}
             {currImage.id === image.id && isEditingImage && (
               <div className="absolute inset-0 flex justify-center bg-neutral-700/80 text-white font-bold items-center">
                 Being Edited...
@@ -243,7 +248,7 @@ export default function Gallery() {
               variant="outline"
               onClick={
                 isEditingImage
-                  ? imageForm.handleSubmit(handleEditImage)
+                  ? handleEditImage
                   : imageForm.handleSubmit(handleAddImage)
               }
             >

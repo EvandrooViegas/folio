@@ -2,7 +2,7 @@ import z from "zod";
 
 export const galleryNodeSchemaData = z.object({
   id: z.string(),
-  image: z.any().default(null),
+  image: z.any().optional().default(null),
   url: z.string().optional().default(""),
   title: z
     .string()

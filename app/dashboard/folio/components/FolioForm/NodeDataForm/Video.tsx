@@ -20,11 +20,15 @@ type Video = {};
 export default function Video() {
   const [isLoading, setIsLoading] = useState(false);
   const { setNodeValue, node, isEditing } = useNodeContext();
-  const [video, setVideo] = useState<iVideoNodeDataSchema>(isEditing ? node.value.data :{
-    url: "",
-    video: null,
-    provider: "local",
-  });
+  const [video, setVideo] = useState<iVideoNodeDataSchema>(
+    isEditing
+      ? node.value.data
+      : {
+          url: "",
+          video: null,
+          provider: "local",
+        }
+  );
   const onFileUpload = async (e: React.FormEvent<HTMLInputElement>) => {
     try {
       setIsLoading(true);
@@ -34,14 +38,15 @@ export default function Video() {
       if (fileSizeInMB > 50) {
         return toast.error("The video is too large");
       }
+       console.log(v)
       const url = await getLocalFileURL(v);
-
       if (!url) return errorToast();
       const nVideo = {
         provider: "local",
         url,
         video: v,
-      } as iVideoNodeDataSchema
+      } as iVideoNodeDataSchema;
+
       setVideo(nVideo);
       setNodeValue({ type: "video", data: nVideo });
     } finally {
@@ -65,11 +70,12 @@ export default function Video() {
           <FormMessage />
         </FormItem>
       </div>
-      {video.url ? (
-        <div className="flex gap-2">
-          <Title size="sm">Video Preview: </Title>
-          <video width="320" height="240" controls>
-            <source src={video.url} type="video/mp4" />
+    {video.url.slice(0 , 6)[0]}
+      {video.video ? (
+        <div className="flex flex-col gap-2">
+          <video className="w-full max-w-[500px] mx-auto aspect-video" controls>
+            <source src={video.url}  />
+            <p>Couldnt load the video</p>
           </video>
         </div>
       ) : null}

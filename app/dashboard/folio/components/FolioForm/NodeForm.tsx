@@ -55,7 +55,6 @@ export default function NodeForm(props: Props) {
 
   const setNodeValue = (nNode: Omit<iNodeValueSchema, "node_id">) => {
     // @ts-ignore
-    console.log(nNode)
     nodeForm.setValue("value", { ...nNode, node_id: id.current });
   };
 
