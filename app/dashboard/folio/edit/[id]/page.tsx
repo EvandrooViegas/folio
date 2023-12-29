@@ -1,3 +1,5 @@
+export const revalidate = 0
+
 import { getFolioByID } from '@/services/folio'
 import FolioForm from '../../components/FolioForm'
 import { iCompleteFolio } from '@/types/folio'

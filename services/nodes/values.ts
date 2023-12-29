@@ -3,58 +3,154 @@ import {
   iGalleryNodeInsert,
   iNodeTypes,
   iNodeValueSchema,
+  iTextNodeInsert,
+  iVideoNodeInsert,
 } from "@/types/nodes";
-import { iGalleryNodeDataSchema } from "@/types/nodes/gallery/iGalleryNode";
-import { uploadNodeImage } from "../storage/images";
-import { uploadNodeVideo } from "../storage/videos";
+import { editNodeImage, uploadNodeImage } from "../storage/images";
+import { editNodeVideo, uploadNodeVideo } from "../storage/videos";
 
 export async function insertNodesValue(nodeValues: iNodeValueSchema[]) {
   await Promise.all(
     nodeValues.map(async (node) => {
       switch (node.type) {
         case "text": {
-          return await supabase.from("text_nodes").insert({
-            text: node.data || "",
-            type: "text",
-            node_id: node.node_id,
-          });
+          const res = (await transformNodeValueToInsert(
+            node
+          )) as iTextNodeInsert;
+          return await supabase.from("text_nodes").insert(res);
         }
         case "gallery": {
+          const res = (await transformNodeValueToInsert(
+            node
+          )) as iGalleryNodeInsert[];
           return await Promise.all(
-            node.data
-              ? node.data.map(async (value) => {
-                  const imageURL = await getNodeValueImageURL(value);
-                  if (!imageURL) return;
-                  const valueToInsert: iGalleryNodeInsert = {
-                    node_id: node.node_id,
-                    description: value.description || "",
-                    title: value.title || "",
-                    url: imageURL,
-                    type: "gallery",
-                  };
-                  return supabase.from("gallery_nodes").insert(valueToInsert);
-                })
-              : []
+            res.map((v) => supabase.from("gallery_nodes").insert(v))
           );
         }
 
         case "video": {
-          return await supabase.from("video_nodes").insert({
-            provider: node.data.provider,
-            url: await uploadNodeVideo(node.data.video) ,
-            node_id: node.node_id,
-          });
+          const res = transformNodeValueToInsert(node) as iVideoNodeInsert;
+          return await supabase.from("video_nodes").insert(res);
         }
       }
     })
   );
 }
 
-async function getNodeValueImageURL(value: iGalleryNodeDataSchema) {
-  if (value.isImageFileLocal) {
-    return await uploadNodeImage(value.image);
+export async function updateNodesValue(nodeValues: iNodeValueSchema[]) {
+  await Promise.all(
+    nodeValues.map(async (node) => {
+      switch (node.type) {
+        case "text": {
+          const res = (await transformNodeValueToInsert(
+            node
+          )) as iTextNodeInsert;
+          return await supabase.from("text_nodes").update(res).eq("id", node.id);
+        }
+        case "gallery": {
+          const res = (await transformNodeValueToInsert(
+            node
+          )) as iGalleryNodeInsert[];
+          return await Promise.all(
+            res.map((v) =>
+              supabase.from("gallery_nodes").update(v).eq("id", v.id)
+            )
+          );
+        }
+
+        case "video": {
+          const res = transformNodeValueToInsert(node) as iVideoNodeInsert;
+          return await supabase
+            .from("video_nodes")
+            .update(res)
+            .eq("id", );
+        }
+      }
+    })
+  );
+}
+
+const transformNodeValueToInsert = async (nv: iNodeValueSchema) => {
+  switch (nv.type) {
+    case "text":
+      return {
+        text: nv.data || "",
+        type: "text",
+        node_id: nv.node_id,
+      };
+    case "gallery":
+      return await Promise.all(
+        nv.data.map(async (val) => ({
+          node_id: nv.node_id,
+          description: val.description || "",
+          title: val.title || "",
+          url: await getNodeFileURL({
+            file: val.image,
+            isLocal: val.isImageFileLocal,
+            type: "image",
+            url: val.url
+          }),
+          type: "gallery",
+        }))
+      );
+    case "video": {
+      return {
+        provider: nv.data.provider,
+        url: await getNodeFileURL({
+          file: nv.data.video,
+          isLocal: nv.data.isVideoFileLocal,
+          type: "video",
+          url: nv.data.url
+        }),
+        node_id: nv.node_id,
+      };
+    }
+  }
+};
+
+async function getNodeFileURL(
+  value: { isLocal: boolean; type: "image" | "video"; file: File; url: string },
+  isEditing: boolean = false
+) {
+  if (value.isLocal) {
+    return await uploadOrEditNodeFile({
+      file: value.file,
+      shouldUpload: true,
+      type: value.type,
+    });
   } else {
-    return value.url;
+    if (isEditing) {
+      return await uploadOrEditNodeFile({
+        file: value.file,
+        shouldUpload: false,
+        type: value.type,
+      });
+    } else {
+      return value.url;
+    }
+  }
+}
+
+async function uploadOrEditNodeFile({
+  file,
+  shouldUpload,
+  url,
+  type,
+}: {
+  file: File;
+  shouldUpload: boolean;
+  url?: string;
+  type: "image" | "video";
+}) {
+  switch (type) {
+    case "image":
+      return shouldUpload
+        ? await uploadNodeImage(file)
+        : await editNodeImage(url, file);
+    case "video":
+      return shouldUpload
+        ? await uploadNodeVideo(file)
+        : await editNodeVideo(url, file);
   }
 }
 

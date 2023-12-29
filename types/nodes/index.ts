@@ -20,6 +20,7 @@ export type iNodeValueDataSchema = z.infer<typeof nodeValue>["data"];
 
 export type iGalleryNodeInsert = Database["public"]["Tables"]["gallery_nodes"]["Insert"]
 export type iTextNodeInsert = Database["public"]["Tables"]["text_nodes"]["Insert"]
+export type iVideoNodeInsert = Database["public"]["Tables"]["video_nodes"]["Insert"]
 
 export type iGalleryNode = Database["public"]["Tables"]["gallery_nodes"]["Row"]
 export type iTextNode = Database["public"]["Tables"]["text_nodes"]["Row"]

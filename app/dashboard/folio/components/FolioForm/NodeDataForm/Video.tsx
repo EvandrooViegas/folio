@@ -22,7 +22,7 @@ export default function Video() {
   const { setNodeValue, node, isEditing } = useNodeContext();
   const [video, setVideo] = useState<iVideoNodeDataSchema>(
     isEditing
-      ? node.value.data
+      ? node.value.data as iVideoNodeDataSchema
       : {
           url: "",
           video: null,
@@ -45,6 +45,7 @@ export default function Video() {
         provider: "local",
         url,
         video: v,
+        isVideoFileLocal: true
       } as iVideoNodeDataSchema;
 
       setVideo({ ...nVideo});

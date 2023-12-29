@@ -1,16 +1,37 @@
 import supabase from "@/lib/supabase";
 import { iNewNodeSchema, iNodeInsert } from "@/types/nodes";
 import { getAuthedUserID } from "../user";
-import { getNodeValue, insertNodesValue } from "./values";
+import { getNodeValue, insertNodesValue, updateNodesValue } from "./values";
 
 type Options = {
   returnNodes: boolean;
 };
+
+function transformNodeToInsert(node: iNewNodeSchema, usrID: string): iNodeInsert {
+  return {
+    folio_id: node.folio_id,
+    title: node.title,
+    user_id: usrID,
+    type: node.value.type,
+    id: node.id,
+  }
+}
 export async function createNodes(
   nodes: iNewNodeSchema[],
   options: Options = { returnNodes: false }
 ) {
-  await insertNodes(nodes);
+  const userID = await getAuthedUserID();
+  if (!userID) return;
+  //saving the nodes
+  const pr = nodes.map((node) => {
+    return supabase
+     .from("nodes")
+     .insert(transformNodeToInsert(node, userID));
+  })
+
+  await Promise.all(pr);
+
+  //saving the nodes value (text, gallery, video)
   await insertNodesValue(nodes.map((node) => node.value));
 
   if (options.returnNodes) {
@@ -19,24 +40,22 @@ export async function createNodes(
   }
 }
 
-export async function insertNodes(nodes: iNewNodeSchema[]) {
+export async function updateNodes(
+  nodes: iNewNodeSchema[]
+) {
   const userID = await getAuthedUserID();
-  if (!userID) return;
-
-  await Promise.all(
-    nodes.map((node) => {
-      //@ts-ignore
-      console.log(node.id)
-      return supabase.from("nodes").insert({
-        title: node.title,
-        folio_id: node.folio_id,
-        type: node.value.type,
-        id: node.id,
-        user_id: userID,
-      });
-    })
-  );
+  const pr = nodes.map((node) => {
+    return supabase
+     .from("nodes")
+     .update(transformNodeToInsert(node, userID))
+     .eq("id", node.id)
+  })
+  await Promise.all(pr)
+  await updateNodesValue(nodes.map((node) => node.value))
 }
+
+
+
 
 async function getNodeByAttr(attr: keyof iNodeInsert, v: any) {
   const node = await supabase
@@ -73,9 +92,10 @@ export async function getNodeByID(id: string) {
   return await getNodeByAttr("id", id);
 }
 
-export async function getNodesByID(nodes: { id: string }[]) {
+export async function getNodesByID(nodes: { id?: string }[]) {
   return await Promise.all(
     nodes.map((node) => {
+      if(!node.id) return 
       return getNodeByID(node.id);
     })
   );

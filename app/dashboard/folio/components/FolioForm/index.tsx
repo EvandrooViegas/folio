@@ -21,8 +21,8 @@ import Modal from "@/components/ui/modal";
 import { Folio, FolioSchema, iCompleteFolio, iFolio } from "@/types/folio";
 import NodeListPreview from "./NodesListPreview";
 import { FolioFormContext } from "./context/FolioFormContext";
-import { createNodes } from "@/services/nodes";
-import { createFolio } from "@/services/folio";
+import { createNodes, updateNodes } from "@/services/nodes";
+import { createFolio, updateFolio } from "@/services/folio";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { iNewNodeSchema } from "@/types/nodes";
@@ -92,13 +92,19 @@ const removeNode = (id: string) => {
   async function onSubmit(data: Folio) {
 
     setIsLoading(true);
-    //@ts-ignore
     delete data.nodes;
-    await createFolio(data);
-    await createNodes(nodes);
-    toast.success("Folio created successfully!");
-    setIsLoading(false);
+    //@ts-ignore
+    if(isEditing) {
+      await updateFolio(data)
+      await updateNodes(nodes)
+    } else {
+      await createFolio(data);
+      await createNodes(nodes);
+      toast.success("Folio created successfully!");
+    }
+    
     router.push("/dashboard");
+    setIsLoading(false);
   }
 
   return (
@@ -186,7 +192,7 @@ const removeNode = (id: string) => {
               )}
             />
             <Button type="submit"  isLoading={isLoading}>
-              Submit
+              {isEditing ?  'Save Changes' : 'Submit'  }
             </Button>
           </form>
         </Form>

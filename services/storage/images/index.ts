@@ -1,24 +1,30 @@
 import supabase from "@/lib/supabase";
-import env from "@/services/env";
-import { getAuthedUser } from "@/services/user";
+import { getAuthedUserID } from "@/services/user";
+import { CDN_URL, getFilePath, getNodeFileInfo } from "..";
 
 const NODE_IMAGES_FOLDER = "node_images";
-const CDN_URL = `${env.supabaseUrl}/storage/v1/object/public`;
 const BUCKET_URL = `${CDN_URL}/${NODE_IMAGES_FOLDER}`;
+
 
 export async function uploadNodeImage(image: File) {
   const ext = (image?.name as string).split(".")[1];
-  const user = await getAuthedUser();
-  if (!user) return;
-  const name = `${user.id}/${crypto.randomUUID()}.${ext}`;
+  const id = await getAuthedUserID();
   const { data } = await supabase.storage
     .from(NODE_IMAGES_FOLDER)
-    .upload(name, image);
-
+    .upload(getFilePath({ imgExt: ext, imgName: crypto.randomUUID(), userID: id }), image);
   const path = data?.path;
   if (!path) return;
 
   return `${BUCKET_URL}/${name}`;
+}
+
+export async function editNodeImage(url: string, image: File) {
+  const { userID, imageName, imageExtension } = getNodeFileInfo(url)
+  await supabase.storage.from(NODE_IMAGES_FOLDER).update(getFilePath({
+    imgExt: imageExtension,
+    imgName: imageName,
+    userID,
+  }), image)
 }
 
 export async function removeNodeImages(paths: string[]) {
@@ -26,12 +32,5 @@ export async function removeNodeImages(paths: string[]) {
   await supabase.storage
     .from(NODE_IMAGES_FOLDER)
     .remove(paths);
-}
-export function getNodeImageInfo(imageURL: string) {
-  const url = imageURL.split(CDN_URL + "/")[1];
-  const [buckedName, userID, image] = url.split("/");
-  const [imageName, imageExtension] = image.split(".");
-  const path = `${userID}/${imageName}.${imageExtension}`;
-  return { buckedName, userID, image, imageName, imageExtension, path };
 }
 
