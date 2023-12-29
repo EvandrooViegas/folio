@@ -84,7 +84,7 @@ export default function Gallery() {
     nImages: iGalleryNodeDataSchema[],
     reset: boolean = true
   ) => {
-    // setNodeValue({ type: "gallery", data: nImages });
+    setNodeValue({ type: "gallery", data: nImages });
     setPreviewImages(nImages);
     if (reset) {
       cancel();
