@@ -20,6 +20,7 @@ type Video = {};
 export default function Video() {
   const [isLoading, setIsLoading] = useState(false);
   const { setNodeValue, node, isEditing } = useNodeContext();
+  const id = useRef(node.value.data?.id || crypto.randomUUID())
   const [video, setVideo] = useState<iVideoNodeDataSchema>(
     isEditing
       ? node.value.data as iVideoNodeDataSchema
@@ -45,7 +46,8 @@ export default function Video() {
         provider: "local",
         url,
         video: v,
-        isVideoFileLocal: true
+        isVideoFileLocal: true,
+        id: id.current
       } as iVideoNodeDataSchema;
 
       setVideo({ ...nVideo});

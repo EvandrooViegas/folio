@@ -23,12 +23,10 @@ export default function NodeListPreview(props: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState<null | iNewNodeSchema>(null)
   const openModal = (n: iNewNodeSchema) => {
-    console.log("open")
     setIsOpen(true);
     setSelectedNode(n)
   };
   const closeModal = () => {
-    console.log("close")
     setIsOpen(false);
   };
   return (

@@ -195,23 +195,26 @@ export interface Database {
       video_nodes: {
         Row: {
           created_at: string
-          id: number
+          id: string
           node_id: string | null
           provider: Database["public"]["Enums"]["video_providers"] | null
+          type: Database["public"]["Enums"]["node_types"] | null
           url: string | null
         }
         Insert: {
           created_at?: string
-          id?: number
+          id?: string
           node_id?: string | null
           provider?: Database["public"]["Enums"]["video_providers"] | null
+          type?: Database["public"]["Enums"]["node_types"] | null
           url?: string | null
         }
         Update: {
           created_at?: string
-          id?: number
+          id?: string
           node_id?: string | null
           provider?: Database["public"]["Enums"]["video_providers"] | null
+          type?: Database["public"]["Enums"]["node_types"] | null
           url?: string | null
         }
         Relationships: [

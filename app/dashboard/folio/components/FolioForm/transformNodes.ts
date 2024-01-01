@@ -3,13 +3,13 @@ import { iNewNodeSchema, iNode, iNodeValueDataSchema } from "@/types/nodes";
 // from the database into a node list for the form
 export function transformNodes(nodes: iNode[]): iNewNodeSchema[] {
   return nodes.map((node) => {
-    let data = getNodeDataByType(node);
+    const data = getNodeDataByType(node);
     const n = {
       title: node.title,
       value: {
         data,
         node_id: node.id,
-        type: node.type,
+        type: node.type
       },
       id: node.id,
       folio_id: node.folio_id,
@@ -21,7 +21,11 @@ export function transformNodes(nodes: iNode[]): iNewNodeSchema[] {
 function getNodeDataByType(node: iNode): iNodeValueDataSchema {
   switch (node.type) {
     case "text":
-      return node.value?.text || "";
+      // console.log(node)
+      return {
+        text: node.value?.text || "",
+        id: node.value?.id || ""
+      }
     case "gallery":
       return node.value
         ? node.value.map((i) => ({

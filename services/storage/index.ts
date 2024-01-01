@@ -1,18 +1,13 @@
 import env from "../env";
+import { getAuthedUserID } from "../user";
 
 export const CDN_URL = `${env.supabaseUrl}/storage/v1/object/public`;
 
-export function getFilePath({
-  userID,
-  imgName,
-  imgExt,
-}: {
-  userID: string;
-  imgName: string;
-  imgExt: string;
-}) {
+export async function getFilePath(video: File) {
+const userID = await getAuthedUserID()
   if (!userID) return;
-  return `${userID}/${imgName}.${imgExt}`;
+  const ext = (video?.name as string).split(".")[1];
+  return `${userID}/${crypto.randomUUID()}.${ext}`;
 }
 
 export function getNodeFileInfo(imageURL: string) {

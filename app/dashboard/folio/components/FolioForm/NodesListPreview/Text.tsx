@@ -6,7 +6,8 @@ type Props = {
 };
 
 export default function Text(props: Props) {
-  const { text: rawText } = props;
+  const { text: data } = props;
+  const rawText = data.text
   if (!rawText) return;
   const maxLetters = 100;
   const text =
