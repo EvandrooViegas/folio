@@ -33,7 +33,7 @@ export default function NodeForm(props: Props) {
   const { node } = props;
   const isEditing = !!node;
   const { closeModal } = useModalContext();
-  const { addNode, folio_id } = useFolioFormContext();
+  const { addNode, editNode, folio_id } = useFolioFormContext();
   const id = useRef(crypto.randomUUID());
   const nodeForm = useForm<iNewNodeSchema>({
     resolver: zodResolver(NodeFormSchema),
@@ -49,7 +49,11 @@ export default function NodeForm(props: Props) {
 
   function onSubmit() {
     const node = nodeForm.getValues();
-    addNode(node);
+    if(isEditing) {
+      editNode(node)
+    } else {
+      addNode(node);
+    }
     closeModal();
   }
 

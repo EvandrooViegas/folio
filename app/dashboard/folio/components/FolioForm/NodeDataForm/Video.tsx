@@ -19,9 +19,10 @@ type Video = {};
 export default function Video() {
   const [isLoading, setIsLoading] = useState(false);
   const { setNodeValue, node, isEditing } = useNodeContext();
+  const id = useRef(node.value.data?.id || crypto.randomUUID())
   const [video, setVideo] = useState<iVideoNodeDataSchema>(
     isEditing
-      ? node.value.data
+      ? node.value.data as iVideoNodeDataSchema
       : {
           url: "",
           video: null,
@@ -38,16 +39,18 @@ export default function Video() {
       if (fileSizeInMB > 50) {
         return toast.error("The video is too large");
       }
-       console.log(v)
+ 
       const url = await getLocalFileURL(v);
       if (!url) return errorToast();
       const nVideo = {
         provider: "local",
         url,
         video: v,
+        isVideoFileLocal: true,
+        id: id.current
       } as iVideoNodeDataSchema;
 
-      setVideo(nVideo);
+      setVideo({ ...nVideo});
       setNodeValue({ type: "video", data: nVideo });
     } finally {
       setIsLoading(false);
@@ -70,9 +73,8 @@ export default function Video() {
           <FormMessage />
         </FormItem>
       </div>
-    {video.url.slice(0 , 6)[0]}
-      {video.video ? (
-        <div className="flex flex-col gap-2">
+      {video.url ? (
+        <div className="flex flex-col gap-2" key={video.url}>
           <video className="w-full max-w-[500px] mx-auto aspect-video" controls>
             <source src={video.url}  />
             <p>Couldnt load the video</p>

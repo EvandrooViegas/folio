@@ -15,11 +15,17 @@ export const NodeFormSchema = z.object({
   folio_id: z.string(),
 });
 export type iNewNodeSchema = z.infer<typeof NodeFormSchema>;
-export type iNodeValueSchema = z.infer<typeof nodeValue>;
+
+export type iTextNodeValueSchema = z.infer<typeof textNodeSchema>
+export type iGalleryNodeValueSchema = z.infer<typeof galleryNodeSchema>
+export type iVideoNodeValueSchema = z.infer<typeof videoNodeSchema>
+
+export type iNodeValueSchema = iTextNodeValueSchema | iGalleryNodeValueSchema  | iVideoNodeValueSchema
 export type iNodeValueDataSchema = z.infer<typeof nodeValue>["data"];
 
 export type iGalleryNodeInsert = Database["public"]["Tables"]["gallery_nodes"]["Insert"]
 export type iTextNodeInsert = Database["public"]["Tables"]["text_nodes"]["Insert"]
+export type iVideoNodeInsert = Database["public"]["Tables"]["video_nodes"]["Insert"]
 
 export type iGalleryNode = Database["public"]["Tables"]["gallery_nodes"]["Row"]
 export type iTextNode = Database["public"]["Tables"]["text_nodes"]["Row"]
@@ -38,4 +44,4 @@ type Value = ({
 export type iNode = Database["public"]["Tables"]["nodes"]["Row"] & Value
 export type iNodeInsert = Database["public"]["Tables"]["nodes"]["Insert"];
 export type iNodeTypes = z.infer<typeof nodeTypes>
-export type iNodeValueInsert = iGalleryNodeInsert  | iTextNodeInsert
+export type iNodeValueInsert = iVideoNodeInsert  | iTextNodeInsert | iGalleryNodeInsert   

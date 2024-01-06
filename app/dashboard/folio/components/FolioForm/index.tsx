@@ -21,8 +21,8 @@ import Modal from "@/components/ui/modal";
 import { Folio, FolioSchema, iCompleteFolio, iFolio } from "@/types/folio";
 import NodeListPreview from "./NodesListPreview";
 import { FolioFormContext } from "./context/FolioFormContext";
-import { createNodes } from "@/services/nodes";
-import { createFolio } from "@/services/folio";
+import { createNodes, updateNodes } from "@/services/nodes";
+import { createFolio, updateFolio } from "@/services/folio";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { iNewNodeSchema } from "@/types/nodes";
@@ -63,16 +63,24 @@ export default function  FolioForm(props?: Props) {
   });
   const [isOpen, setIsOpen] = useState(false);
 
+
+  const setFormNode = (nNodes: iNewNodeSchema[]) => {
+    setNodes(nNodes);
+    fieldArray.append(nNodes);
+  }
   const addNode = (nNode: iNewNodeSchema) => {
-    const recivedNode = nNode;
-    setNodes([recivedNode, ...nodes]);
-    fieldArray.append(nNode);
+    const nNodes = [nNode, ...nodes]
+    setFormNode(nNodes)
   };
+  const editNode = (nNode: iNewNodeSchema) => {
+    const nNodes = nodes.filter(n => n.id != nNode.id)
+    nNodes.push(nNode)
+    setFormNode(nNodes)
+  }
 
 const removeNode = (id: string) => {
   const nNodes = nodes.filter(n => n.id != id)
-  setNodes(nNodes)
-  fieldArray.replace(nNodes)
+  setFormNode(nNodes)
 }
 
   const openModal = () => {
@@ -84,18 +92,24 @@ const removeNode = (id: string) => {
   async function onSubmit(data: Folio) {
 
     setIsLoading(true);
-    //@ts-ignore
     delete data.nodes;
-    await createFolio(data);
-    await createNodes(nodes);
-    toast.success("Folio created successfully!");
-    setIsLoading(false);
+    //@ts-ignore
+    if(isEditing) {
+      await updateFolio(data)
+      await updateNodes(nodes)
+    } else {
+      await createFolio(data);
+      await createNodes(nodes);
+      toast.success("Folio created successfully!");
+    }
+    
     router.push("/dashboard");
+    setIsLoading(false);
   }
 
   return (
     <FolioFormContext.Provider
-      value={{ form, addNode, removeNode, folio_id: folioID.current }}
+      value={{ form, addNode, editNode, removeNode, folio_id: folioID.current }}
     >
       <div className=" w-full">
         <Modal isOpen={isOpen} close={closeModal} title="Create a new Node">
@@ -178,7 +192,7 @@ const removeNode = (id: string) => {
               )}
             />
             <Button type="submit"  isLoading={isLoading}>
-              Submit
+              {isEditing ?  'Save Changes' : 'Submit'  }
             </Button>
           </form>
         </Form>

@@ -35,7 +35,6 @@ export default function Gallery() {
   const [previewImages, setPreviewImages] = useState(
     (node.value.data || []) as iGalleryNodeDataSchema[]
   );
-  console.log(previewImages);
   const [isCreatingImage, setIsCreatingImage] = useState(false);
 
   const [isEditingImage, setIsEditingImage] = useState(false);
@@ -84,7 +83,7 @@ export default function Gallery() {
     nImages: iGalleryNodeDataSchema[],
     reset: boolean = true
   ) => {
-    // setNodeValue({ type: "gallery", data: nImages });
+    setNodeValue({ type: "gallery", data: nImages });
     setPreviewImages(nImages);
     if (reset) {
       cancel();
