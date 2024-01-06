@@ -42,6 +42,7 @@ function getNodeDataByType(node: iNode): iNodeValueDataSchema {
         video: null,
         provider: node.value?.provider || "local",
         url: node.value?.url || "",
+        id: node.value.id
       };
   }
 }
