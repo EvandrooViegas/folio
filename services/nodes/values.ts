@@ -11,94 +11,43 @@ import {
 import { editNodeImage, uploadNodeImage } from "../storage/images";
 import { editNodeVideo, uploadNodeVideo } from "../storage/videos";
 
-async function getValuesList(values: iNodeValueSchema[]) {
-  const valuesList =  [] as iNodeValueInsert[]
-  const pr = values.map(async(item) => {
-    const res = await transformNodeValueToInsert(item);
-    
-    if(Array.isArray(res)) res.forEach(i => valuesList.push(i))
-    else valuesList.push(res)
+function getTableName(type: iNodeTypes) {
+  return `${type}_nodes`;
+}
+
+async function getValuesList(values: iNodeValueSchema[], isEditing: boolean) {
+  const valuesList = [] as iNodeValueInsert[];
+  const pr = values.map(async (item) => {
+    const res = await transformNodeValueToInsert(item, isEditing);
+
+    if (Array.isArray(res)) res.forEach((i) => valuesList.push(i));
+    else valuesList.push(res);
   });
-  await Promise.all(pr)
-  return valuesList
+  await Promise.all(pr);
+  return valuesList;
 }
 export async function insertOrEditNodesValues(
   values: iNodeValueSchema[],
-  isEditing: boolean = false
+  isEditing: boolean
 ) {
-  const list = await getValuesList(values) 
-
-  const pr = list.map(value => {
-    const from = `${value.type}_nodes`
-    const f = supabase.from(from)[isEditing ? "update" : "insert"](value)
-    if(isEditing) {
-      return f.eq("id", value.id)
+  const list = await getValuesList(values, isEditing);
+  console.log(list);
+  const pr = list.map((value) => {
+    const from = getTableName(value.type);
+    if (isEditing) {
+      return supabase.from(from).update(value).eq("id", value.id);
     } else {
-      return f
+      return supabase.from(from).insert(value);
     }
-  })
-  await Promise.all(pr)
+  });
+  await Promise.all(pr);
 }
 
-export async function insertNodesValue(values: iNodeValueSchema[]) {
-  await Promise.all(
-    values.map(async (value) => {
-      const res = await transformNodeValueToInsert(value);
-      switch (value.type) {
-        case "text": {
-          return await supabase
-            .from("text_nodes")
-            .insert(res as iTextNodeInsert)["eq"];
-        }
-        case "gallery": {
-          return await Promise.all(
-            (res as iGalleryNodeInsert[]).map((v) =>
-              supabase.from("gallery_nodes").insert(v)
-            )
-          );
-        }
-        case "video": {
-          return await supabase
-            .from("video_nodes")
-            .insert(res as iVideoNodeInsert);
-        }
-      }
-    })
-  );
-}
-
-export async function updateNodesValue(values: iNodeValueSchema[]) {
-  await Promise.all(
-    values.map(async (value) => {
-      const res = await transformNodeValueToInsert(value);
-
-      switch (value.type) {
-        case "text": {
-          return await supabase
-            .from("text_nodes")
-            .update(res as iTextNodeInsert)
-            .eq("id", value.data.id);
-        }
-        case "gallery": {
-          return await Promise.all(
-            (res as iGalleryNodeInsert[]).map((v) =>
-              supabase.from("gallery_nodes").update(v).eq("id", v.id)
-            )
-          );
-        }
-        case "video": {
-          return await supabase
-            .from("video_nodes")
-            .update(res as iVideoNodeInsert)
-            .eq("id", value.data.id);
-        }
-      }
-    })
-  );
-}
-
-const transformNodeValueToInsert = async (val: iNodeValueSchema)
-:Promise<iNodeValueInsert | iNodeValueInsert[]> => {
+const transformNodeValueToInsert = async (
+  val: iNodeValueSchema,
+  isEditing: boolean
+): Promise<iNodeValueInsert | iNodeValueInsert[]> => {
+  console.log(val);
   switch (val.type) {
     case "text":
       return {
@@ -109,12 +58,16 @@ const transformNodeValueToInsert = async (val: iNodeValueSchema)
       } as iTextNodeInsert;
     case "gallery":
       const pr = val.data.map(async (i) => {
-        const url = await getNodeFileURL({
-          file: i.image,
-          isLocal: i.isImageFileLocal,
-          type: "image",
-          url: i.url,
-        });
+        const url = await getNodeFileURL(
+          {
+            file: i.image,
+            isLocal: i.isImageFileLocal,
+            type: "gallery",
+            url: i.url,
+            id: i.id,
+          },
+          isEditing
+        );
         if (!url) return;
         return {
           id: i.id,
@@ -129,66 +82,63 @@ const transformNodeValueToInsert = async (val: iNodeValueSchema)
 
     case "video": {
       const value = val as iVideoNodeValueSchema;
-      const url = await getNodeFileURL({
-        file: value.data.video,
-        isLocal: value.data.isVideoFileLocal,
-        type: "video",
-        url: value.data.url,
-      });
+      console.log(value);
+      const url = await getNodeFileURL(
+        {
+          file: value.data.video,
+          isLocal: value.data.isVideoFileLocal,
+          type: "video",
+          url: value.data.url,
+          id: value.data.id,
+        },
+        isEditing
+      );
+      console.log(url);
       if (!url) return;
       return {
         id: value.data.id,
         provider: value.data.provider,
         url,
         node_id: value.node_id,
+        type: "video",
       } as iVideoNodeInsert;
     }
   }
 };
 
 async function getNodeFileURL(
-  value: { isLocal: boolean; type: "image" | "video"; file: File; url: string },
-  isEditing: boolean = false
+  value: {
+    isLocal: boolean;
+    type: "gallery" | "video";
+    file: File;
+    url: string;
+    id: string;
+  },
+  isEditing
 ) {
   if (value.isLocal) {
-    return await uploadOrEditNodeFile({
-      file: value.file,
-      shouldUpload: true,
-      type: value.type,
-    });
-  } else {
     if (isEditing) {
-      return await uploadOrEditNodeFile({
-        file: value.file,
-        shouldUpload: false,
-        type: value.type,
-      });
+      const { data: prevValue } = await supabase
+      .from(getTableName(value.type))
+      .select()
+      .eq("id", value.id)
+      .single();
+      console.log(prevValue, value.id, value.type)
+      const prevURL = prevValue.url;
+      if (!prevURL) return;
+      if (value.type === "gallery") return await editNodeImage(prevURL, value.file);
+      else if (value.type === "video") return await editNodeVideo(prevURL, value.file);
     } else {
-      return value.url;
+      if (value.type === "gallery") return await uploadNodeImage(value.file);
+      else if (value.type === "video") return await uploadNodeVideo(value.file);
     }
+
+  } else {
+    return value.url;
   }
 }
 
-async function uploadOrEditNodeFile({
-  file,
-  shouldUpload,
-  type,
-}: {
-  file: File;
-  shouldUpload: boolean;
-  type: "image" | "video";
-}) {
-  switch (type) {
-    case "image":
-      return shouldUpload
-        ? await uploadNodeImage(file)
-        : await editNodeImage(file);
-    case "video":
-      return shouldUpload
-        ? await uploadNodeVideo(file)
-        : await editNodeVideo(file);
-  }
-}
+
 
 export async function getNodeValue(type: iNodeTypes, nodeID: string) {
   switch (type) {

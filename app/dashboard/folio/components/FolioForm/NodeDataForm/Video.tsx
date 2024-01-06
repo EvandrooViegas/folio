@@ -1,8 +1,5 @@
 "use client";
-import Image from "next/image";
 import {
-  FormControl,
-  FormField,
   FormItem,
   FormLabel,
   FormMessage,
@@ -19,17 +16,20 @@ type Video = {};
 export default function Video() {
   const [isLoading, setIsLoading] = useState(false);
   const { setNodeValue, node, isEditing } = useNodeContext();
-  const id = useRef(node.value.data?.id || crypto.randomUUID())
-  const [video, setVideo] = useState<iVideoNodeDataSchema>(
-    isEditing
-      ? node.value.data as iVideoNodeDataSchema
-      : {
-          url: "",
-          video: null,
-          provider: "local",
-          
-        }
-  );
+  const valueID = node.value.data?.id
+  const id = useRef(valueID ? valueID : crypto.randomUUID())
+  const defaultVideo: iVideoNodeDataSchema = 
+  isEditing
+    ? node.value.data as iVideoNodeDataSchema
+    : {
+        id: id.current,
+        video: null,
+        url: "",
+        provider: "local",
+        isVideoFileLocal: true,
+      } as iVideoNodeDataSchema
+
+  const [video, setVideo] = useState(defaultVideo);
   const onFileUpload = async (e: React.FormEvent<HTMLInputElement>) => {
     try {
       setIsLoading(true);
@@ -50,7 +50,7 @@ export default function Video() {
         id: id.current
       } as iVideoNodeDataSchema;
 
-      setVideo({ ...nVideo});
+      setVideo(nVideo);
       setNodeValue({ type: "video", data: nVideo });
     } finally {
       setIsLoading(false);

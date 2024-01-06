@@ -49,6 +49,7 @@ export default function NodeForm(props: Props) {
 
   function onSubmit() {
     const node = nodeForm.getValues();
+    console.log(node)
     if(isEditing) {
       editNode(node)
     } else {

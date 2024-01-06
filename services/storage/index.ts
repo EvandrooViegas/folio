@@ -4,17 +4,29 @@ import { getAuthedUserID } from "../user";
 export const CDN_URL = `${env.supabaseUrl}/storage/v1/object/public`;
 
 export async function getFilePath(video: File) {
-const userID = await getAuthedUserID()
-  if (!userID) return;
+const usrID = await getAuthedUserID()
+  if (!usrID) return;
   const ext = (video?.name as string).split(".")[1];
-  return `${userID}/${crypto.randomUUID()}.${ext}`;
+  return constructFileURL({ ext, fileName: crypto.randomUUID(), usrID });
 }
 
-export function getNodeFileInfo(imageURL: string) {
-    const url = imageURL.split(CDN_URL + "/")[1];
-    const [buckedName, userID, image] = url.split("/");
-    const [imageName, imageExtension] = image.split(".");
-    const path = `${userID}/${imageName}.${imageExtension}`;
-    return { buckedName, userID, image, imageName, imageExtension, path };
+export function constructFileURL({
+  usrID,
+  fileName,
+  ext
+}: {
+  usrID: string,
+  fileName: string,
+  ext: string
+}) {
+  return `${usrID}/${fileName}.${ext}`
+}
+
+export function getNodeFileInfo(fileURL: string) {
+    const url = fileURL.split(CDN_URL + "/")[1];
+    const [buckedName, userID, file] = url.split("/");
+    const [fileName, fileExtension] = file.split(".");
+    const path = `${userID}/${fileName}.${fileExtension}`;
+    return { buckedName, userID, file, fileName, fileExtension, path };
   }
   

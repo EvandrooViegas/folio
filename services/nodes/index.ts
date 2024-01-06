@@ -1,7 +1,7 @@
 import supabase from "@/lib/supabase";
 import { iNewNodeSchema, iNodeInsert } from "@/types/nodes";
 import { getAuthedUserID } from "../user";
-import { getNodeValue, insertNodesValue, updateNodesValue } from "./values";
+import { getNodeValue, insertOrEditNodesValues } from "./values";
 
 type Options = {
   returnNodes: boolean;
@@ -32,7 +32,7 @@ export async function createNodes(
   await Promise.all(pr);
 
   //saving the nodes value (text, gallery, video)
-  await insertNodesValue(nodes.map((node) => node.value));
+  await insertOrEditNodesValues(nodes.map((node) => node.value), false);
 
   if (options.returnNodes) {
     const newNodes = await getNodesByID(nodes);
@@ -51,7 +51,8 @@ export async function updateNodes(
      .eq("id", node.id)
   })
   await Promise.all(pr)
-  await updateNodesValue(nodes.map((node) => node.value))
+  const values = nodes.map((node) => node.value)
+  await insertOrEditNodesValues(values, true)
 }
 
 

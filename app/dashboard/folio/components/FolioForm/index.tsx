@@ -65,8 +65,9 @@ export default function  FolioForm(props?: Props) {
 
 
   const setFormNode = (nNodes: iNewNodeSchema[]) => {
+    console.log(nNodes)
     setNodes(nNodes);
-    fieldArray.append(nNodes);
+    fieldArray.replace(nNodes);
   }
   const addNode = (nNode: iNewNodeSchema) => {
     const nNodes = [nNode, ...nodes]

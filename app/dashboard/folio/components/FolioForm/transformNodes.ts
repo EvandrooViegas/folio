@@ -39,10 +39,11 @@ function getNodeDataByType(node: iNode): iNodeValueDataSchema {
         : [];
     case "video":
       return {
+        id: node.value.id,
         video: null,
         provider: node.value?.provider || "local",
         url: node.value?.url || "",
-        id: node.value.id
+
       };
   }
 }
