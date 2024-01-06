@@ -14,7 +14,6 @@ import { useRef, useState } from "react";
 import errorToast from "@/utils/errorToast";
 import { toast } from "react-toastify";
 import { iVideoNodeDataSchema } from "@/types/nodes/video/iVideoNode";
-import Title from "@/components/section/title";
 
 type Video = {};
 export default function Video() {
@@ -27,6 +26,7 @@ export default function Video() {
           url: "",
           video: null,
           provider: "local",
+          
         }
   );
   const onFileUpload = async (e: React.FormEvent<HTMLInputElement>) => {
