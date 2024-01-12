@@ -10,7 +10,7 @@ import { useNodeContext } from "../context/NodeContext";
 import { useRef, useState } from "react";
 import errorToast from "@/utils/errorToast";
 import { toast } from "react-toastify";
-import { iVideoNodeDataSchema } from "@/types/nodes/video/iVideoNode";
+import { iVideoNodeDataSchema } from "@/types/nodes/values/video/iVideoNode";
 
 type Video = {};
 export default function Video() {

@@ -1,4 +1,4 @@
-import { IGalleryNodeData } from "@/types/nodes/gallery/iGalleryNode";
+import { IGalleryNodeData } from "@/types/nodes/values/gallery/iGalleryNode";
 import Image from "next/image";
 import React from "react";
 

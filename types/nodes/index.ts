@@ -1,8 +1,8 @@
 import z from "zod";
-import { textNodeSchema } from "./text/iTextNode";
-import { galleryNodeSchema } from "./gallery/iGalleryNode";
+import { textNodeSchema } from "./values/text/iTextNode";
+import { galleryNodeSchema } from "./values/gallery/iGalleryNode";
 import { Database } from "@/lib/supabase/database.types";
-import { videoNodeSchema } from "./video/iVideoNode";
+import { videoNodeSchema } from "./values/video/iVideoNode";
 
 const nodeValue = z.union([textNodeSchema, galleryNodeSchema, videoNodeSchema])
 const nodeTypes = z.union([z.literal("text"), z.literal("gallery"), z.literal("video")])

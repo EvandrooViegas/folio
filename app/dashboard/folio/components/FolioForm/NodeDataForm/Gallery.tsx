@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   galleryNodeSchemaData,
   iGalleryNodeDataSchema,
-} from "@/types/nodes/gallery/iGalleryNode";
+} from "@/types/nodes/values/gallery/iGalleryNode";
 import getLocalFileURL from "@/utils/getLocalFileURL";
 import { useNodeContext } from "../context/NodeContext";
 import { useFieldArray, useForm } from "react-hook-form";

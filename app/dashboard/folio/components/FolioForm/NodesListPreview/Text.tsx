@@ -1,4 +1,4 @@
-import { ITextNodeData } from "@/types/nodes/text/iTextNode";
+import { ITextNodeData } from "@/types/nodes/values/text/iTextNode";
 import React from "react";
 
 type Props = {

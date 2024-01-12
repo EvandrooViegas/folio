@@ -1,7 +1,7 @@
 import z from "zod";
+import { createNodeValueDataSchema, createNodeValueSchema } from "..";
 
-export const galleryNodeSchemaData = z.object({
-  id: z.string(),
+export const data = createNodeValueSchema({
   image: z.any().optional().default(null),
   url: z.string().optional().default(""),
   title: z
@@ -18,13 +18,11 @@ export const galleryNodeSchemaData = z.object({
     })
     .default("")
     .optional(),
-    isImageFileLocal: z.boolean()
+  isImageFileLocal: z.boolean(),
+}, {
+  isArray: true
 });
-export const galleryNodeSchema = z.object({
-  type: z.literal("gallery"),
-  node_id: z.string(),
-  data: galleryNodeSchemaData.array().nullable(),
-});
+export const galleryNodeSchema = createNodeValueDataSchema("video", data);
 
 export type iGalleryNodeSchema = z.infer<typeof galleryNodeSchema>;
-export type iGalleryNodeDataSchema = z.infer<typeof galleryNodeSchemaData>;
+export type iGalleryNodeDataSchema = z.infer<typeof data>;
