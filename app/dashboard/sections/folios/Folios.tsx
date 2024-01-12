@@ -1,7 +1,7 @@
 import React from "react";
 import SectionTitle from "../../../../components/section/title";
 import SectionDescription from "../../../../components/section/description";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import FoliosList from "./FoliosList";

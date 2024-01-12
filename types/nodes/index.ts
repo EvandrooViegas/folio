@@ -13,6 +13,7 @@ export const NodeFormSchema = z.object({
   value: nodeValue,
   id: z.string(),
   folio_id: z.string(),
+  wasEdited: z.boolean().optional().default(true)
 });
 export type iNewNodeSchema = z.infer<typeof NodeFormSchema>;
 
@@ -31,17 +32,7 @@ export type iGalleryNode = Database["public"]["Tables"]["gallery_nodes"]["Row"]
 export type iTextNode = Database["public"]["Tables"]["text_nodes"]["Row"]
 export type iVideoNode = Database["public"]["Tables"]["video_nodes"]["Row"]
 
-type Value = ({
-  type: "gallery",
-  value: iGalleryNode[] | null
-} | {
-  type: "text",
-  value: iTextNode | null
-} | {
-  type: "video",
-  value: iVideoNode | null
-})
-export type iNode = Database["public"]["Tables"]["nodes"]["Row"] & Value
+export type iNode = Database["public"]["Tables"]["nodes"]["Row"] 
 export type iNodeInsert = Database["public"]["Tables"]["nodes"]["Insert"];
 export type iNodeTypes = z.infer<typeof nodeTypes>
 export type iNodeValueInsert = iVideoNodeInsert  | iTextNodeInsert | iGalleryNodeInsert   

@@ -18,7 +18,6 @@ export async function editNodeImage(prevURL: string, image: File) {
       url,
       image
     );
-    console.log(res)
     return url
 }
 

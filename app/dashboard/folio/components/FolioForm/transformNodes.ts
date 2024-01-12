@@ -21,7 +21,6 @@ export function transformNodes(nodes: iNode[]): iNewNodeSchema[] {
 function getNodeDataByType(node: iNode): iNodeValueDataSchema {
   switch (node.type) {
     case "text":
-      // console.log(node)
       return {
         text: node.value?.text || "",
         id: node.value?.id || ""

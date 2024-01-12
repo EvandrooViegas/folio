@@ -8,14 +8,10 @@ import { Button } from "@/components/ui/button";
 import { ControllerRenderProps } from "react-hook-form";
 import { types } from "./nodeTypes"
 import { useNodeContext } from "./context/NodeContext"
-type Props = {
-  field: ControllerRenderProps<Node, "value.data">;
-};
-export default function NodeValue(props: Props) {
+export default function NodeValue() {
   const { setNodeValue, form, node, isEditing } = useNodeContext();
   const [type, setType] = useState<NodeTypes>(node.value.type);
   const isSelectedType = (t: NodeTypes) => t === type;
-  const { field } = props;
   return (
     <div className="space-y-1">
       <div className="flex flex-wrap gap-1">

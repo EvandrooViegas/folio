@@ -19,7 +19,6 @@ export async function editNodeVideo(prevURL: string, video: File) {
       url,
       video
     );
-    console.log(res)
     return url
       
 }

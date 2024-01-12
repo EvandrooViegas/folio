@@ -8,9 +8,6 @@ export default async function Navbar() {
       <div className="max-app-width mx-auto flex items-center py-3 px-8 justify-between">
         <Link href={"/"}>
           <Image src="/logo/white-green.png" width={70} height={70}  />
-          {/* <span className="font-paytone font-black text-4xl tracking-tight">
-            FOLIO
-          </span> */}
         </Link>
         <ul className="flex gap-3 items-center">
         <Link href="/dashboard">

@@ -41,7 +41,7 @@ export default function NodeForm(props: Props) {
       ? node
       : {
           title: "",
-          value: { type: "text", data: "" },
+          value: { type: "text", data: { id: crypto.randomUUID(), text: "" } },
           folio_id,
           id: id.current,
         },
@@ -49,9 +49,8 @@ export default function NodeForm(props: Props) {
 
   function onSubmit() {
     const node = nodeForm.getValues();
-    console.log(node)
-    if(isEditing) {
-      editNode(node)
+    if (isEditing) {
+      editNode(node);
     } else {
       addNode(node);
     }
@@ -94,7 +93,7 @@ export default function NodeForm(props: Props) {
             name={`value.data`}
             render={({ field }) => (
               <FormItem>
-                <NodeValue field={field} />
+                <NodeValue />
                 <FormMessage />
               </FormItem>
             )}
@@ -106,7 +105,7 @@ export default function NodeForm(props: Props) {
             className="mt-4"
             onClick={nodeForm.handleSubmit(onSubmit)}
           >
-            {!isEditing ? 'Create' : 'Save'}
+            {!isEditing ? "Create" : "Save"}
           </Button>
         </div>
       </Form>
