@@ -66,7 +66,11 @@ export async function getNodeFileURL(
   
   export async function getValuesList(values: iNodeValueSchema[], isEditing: boolean) {
     const valuesList = [] as iNodeValueInsert[];
+    const add = () => {
+      
+    }
     const pr = values.map(async (item) => {
+    item.data.
       const res = await transformNodeValueToInsert(item, isEditing);
   
       if (Array.isArray(res)) res.forEach((i) => valuesList.push(i));

@@ -1,23 +1,34 @@
-import z from "zod"
-import { iNodeTypes } from ".."
+import z from "zod";
+import { iNodeTypes } from "..";
 
-type Opt = {
-    isArray: boolean,
+const def = {
+  id: z.string(),
+  wasEdited: z.boolean(),
+  isNew: z.boolean(),
+};
+
+const b = z.object(def)
+type Def = z.infer<typeof b>;
+export function createNodeValueDataSchema<T>(d: T) {
+  const schema = z.object({
+    ...def,
+    ...(d),
+  });
+
+  return schema;
 }
-export function createNodeValueSchema(d: {}, opt?: Opt) {
-    const schema = z.object({
-        id: z.string(),
-        wasEdited: z.boolean(),
-        ...d
-    })
-    if(opt.isArray) {
-        return schema.array().default([]) 
-    }
-} 
-export function createNodeValueDataSchema(t: iNodeTypes, d: any) {
-return z.object({
+type Data<T> = z.ZodObject<
+  //@ts-ignore
+  Def,
+  "strip",
+  z.ZodTypeAny,
+  T,
+  T
+>;
+export function createNodeValueSchema<T>(t: iNodeTypes, data: Data<T>) {
+  return z.object({
     type: z.literal(t),
     node_id: z.string(),
-    data: d,
+    data,
   });
 }

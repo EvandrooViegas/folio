@@ -5,13 +5,13 @@ import Text from "./NodeDataForm/Text";
 import Video from "./NodeDataForm/Video";
 import Gallery from "./NodeDataForm/Gallery";
 import { Button } from "@/components/ui/button";
-import { ControllerRenderProps } from "react-hook-form";
 import { types } from "./nodeTypes"
 import { useNodeContext } from "./context/NodeContext"
+import { iNodeTypes } from "@/types/nodes";
 export default function NodeValue() {
-  const { setNodeValue, form, node, isEditing } = useNodeContext();
-  const [type, setType] = useState<NodeTypes>(node.value.type);
-  const isSelectedType = (t: NodeTypes) => t === type;
+  const { node, isEditing } = useNodeContext();
+  const [type, setType] = useState<iNodeTypes>(node.value.type);
+  const isSelectedType = (t: iNodeTypes) => t === type;
   return (
     <div className="space-y-1">
       <div className="flex flex-wrap gap-1">

@@ -1,7 +1,7 @@
 import supabase from "@/lib/supabase";
 import { iCompleteFolio, iFolio, iNewFolio } from "@/types/folio";
 import { getAuthedUserID } from "../user";
-import { getNodesByFolioID } from "../nodes";
+import { getNodesByFolioID } from "../nodes/getters";
 
 export async function createFolio(folio: Omit<iNewFolio, "user_id">) {
   const userID = await getAuthedUserID();

@@ -1,32 +1,28 @@
 "use client";
 import { Textarea } from "@/components/ui/textarea";
 import { useNodeContext } from "../context/NodeContext";
-import {
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { ChangeEvent } from "react";
-import { ControllerRenderProps } from "react-hook-form";
-import { useRef } from "react"
-type Props = {
-  field: ControllerRenderProps<Node, "value.data">;
-}
-export default function Text(props: Props) {
+import { ChangeEvent, useRef } from "react";
+import _ from "lodash";
+import { iTextValueDataSchema } from "@/types/nodes";
+export default function Text() {
   const { setNodeValue, node, isEditing } = useNodeContext();
-  const id = useRef(node.value.data?.id || crypto.randomUUID())
+  const nodeData = node.value.data as iTextValueDataSchema;
+  const id = useRef(isEditing ? nodeData.id : crypto.randomUUID());
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const onChange = (e: any) => {
     setNodeValue({
       type: "text",
       data: {
         text: e?.target?.value,
-        id: id.current
-      },
+        id: id.current,
+      } as iTextValueDataSchema,
     });
   };
   return (
-      <Textarea onChange={onChange} defaultValue={node.value.data?.text} className="h-44 resize-none p-5"  />
-  )
-    
+    <Textarea
+      onChange={onChange}
+      defaultValue={nodeData?.text || ""}
+      className="h-44 resize-none p-5"
+    />
+  );
 }

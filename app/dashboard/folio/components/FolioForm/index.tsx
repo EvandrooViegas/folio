@@ -21,7 +21,7 @@ import Modal from "@/components/ui/modal";
 import { Folio, FolioSchema, iCompleteFolio, iFolio } from "@/types/folio";
 import NodeListPreview from "./NodesListPreview";
 import { FolioFormContext } from "./context/FolioFormContext";
-import { createNodes, updateNodes } from "@/services/nodes";
+import {  createOrUpdateNodes } from "@/services/nodes";
 import { createFolio, updateFolio } from "@/services/folio";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
@@ -93,16 +93,9 @@ const removeNode = (id: string) => {
 
     setIsLoading(true);
     delete data.nodes;
-    //@ts-ignore
-    if(isEditing) {
-      await updateFolio(data)
-      await updateNodes(nodes)
-    } else {
-      await createFolio(data);
-      await createNodes(nodes);
-      toast.success("Folio created successfully!");
-    }
-    
+    // folios
+    await createOrUpdateNodes(nodes, )
+    toast.success(`Folio ${isEditing ? 'Edited' : 'Created'} successfully!`);
     router.push("/dashboard");
     setIsLoading(false);
   }

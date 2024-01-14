@@ -12,34 +12,26 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  galleryNodeSchemaData,
-  iGalleryNodeDataSchema,
-} from "@/types/nodes/values/gallery/iGalleryNode";
 import getLocalFileURL from "@/utils/getLocalFileURL";
 import { useNodeContext } from "../context/NodeContext";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import Title from "@/components/section/title";
+import { iGalleryValueDataSchema } from "@/types/nodes";
+import { galleryNodeSchemaData } from "@/types/nodes/values/gallery/iGalleryNode";
+
 export default function Gallery() {
   const [isLoading, setIsLoading] = useState(false);
   const { setNodeValue, node } = useNodeContext();
   const [previewImages, setPreviewImages] = useState(
-    (node.value.data || []) as iGalleryNodeDataSchema[]
+    (node.value?.data as unknown as iGalleryValueDataSchema[]) || []
   );
   const [isCreatingImage, setIsCreatingImage] = useState(false);
 
   const [isEditingImage, setIsEditingImage] = useState(false);
 
-  const imageForm = useForm<iGalleryNodeDataSchema>({
+  const imageForm = useForm<iGalleryValueDataSchema>({
     resolver: zodResolver(galleryNodeSchemaData),
     defaultValues: {
       title: "",
@@ -47,7 +39,7 @@ export default function Gallery() {
     },
   });
 
-  const editImage = (image: iGalleryNodeDataSchema) => {
+  const editImage = (image: iGalleryValueDataSchema) => {
     setIsEditingImage(true);
     imageForm.reset();
     imageForm.setValue("description", image.description);
@@ -80,7 +72,7 @@ export default function Gallery() {
   };
 
   const setNewImages = (
-    nImages: iGalleryNodeDataSchema[],
+    nImages: iGalleryValueDataSchema[],
     reset: boolean = true
   ) => {
     setNodeValue({ type: "gallery", data: nImages });
@@ -142,7 +134,7 @@ export default function Gallery() {
           >
             <div className="relative h-40">
               <Image
-                src={image.url}
+                src={image.url || ""}
                 fill
                 className="object-cover align-top rounded "
                 alt="Image"
@@ -157,21 +149,21 @@ export default function Gallery() {
 
             {!isEditingImage && (
               <div className="transition-all absolute inset-0 opacity-0 group-hover:opacity-100 flex gap-0 flex-col justify-center items-center text-white  bg-black/60">
-              <Button
-                size="sm"
-                variant="underline"
-                onClick={() => editImage(image)}
-              >
-                Edit
-              </Button>
-              <Button
-                size="sm"
-                variant="underline"
-                onClick={() => removeImage(image.id)}
-              >
-                Delete
-              </Button>
-            </div>
+                <Button
+                  size="sm"
+                  variant="underline"
+                  onClick={() => editImage(image)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  size="sm"
+                  variant="underline"
+                  onClick={() => removeImage(image.id)}
+                >
+                  Delete
+                </Button>
+              </div>
             )}
             {currImage.id === image.id && isEditingImage && (
               <div className="absolute inset-0 flex justify-center bg-neutral-700/80 text-white font-bold items-center">
@@ -220,7 +212,7 @@ export default function Gallery() {
             <div className="relative w-full h-40 bg-neutral-100 p-2 rounded">
               <Image
                 fill
-                src={imageForm.getValues("url")}
+                src={imageForm.getValues("url") || ""}
                 alt="Image"
                 className="rounded object-cover"
               />

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-
+import _ from "lodash";
 import {
   Form,
   FormField,
@@ -15,40 +15,61 @@ import NodeValue from "./NodeValue";
 import z from "zod";
 import { useModalContext } from "@/components/ui/modal";
 import { useFolioFormContext } from "./context/FolioFormContext";
-import { NodeContext } from "./context/NodeContext";
+import { NodeContext, type SetNewNode } from "./context/NodeContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   NodeFormSchema,
-  iNewNodeSchema,
+  iNodeSchema,
+  iNodeValueDataSchema,
   iNodeValueSchema,
+  iTextNodeValueSchema,
 } from "@/types/nodes";
+import isNodeValueDataEqual from "./utils/isNodeValueDataEqual";
 
-export const FormSchema = NodeFormSchema;
+const FormSchema = NodeFormSchema;
+
 export type Form = z.infer<typeof FormSchema>;
 type Props = {
-  node?: iNewNodeSchema;
+  node?: iNodeSchema;
 };
+
 export default function NodeForm(props: Props) {
   const { node } = props;
   const isEditing = !!node;
   const { closeModal } = useModalContext();
   const { addNode, editNode, folio_id } = useFolioFormContext();
   const id = useRef(crypto.randomUUID());
-  const nodeForm = useForm<iNewNodeSchema>({
+  const isNewNode = !isEditing;
+
+  const initialValue = useRef({
+    type: "text",
+    node_id: id.current,
+    data: { id: crypto.randomUUID(), isNew: true, wasEdited: false, text: "" },
+  } as iNodeValueSchema);
+
+  const initialNode = useRef({
+    folio_id: folio_id,
+    id: id.current,
+    isNew: true,
+    title: "",
+    wasEdited: false,
+    value: initialValue.current,
+  } as iNodeSchema);
+
+  const nodeForm = useForm<iNodeSchema>({
     resolver: zodResolver(NodeFormSchema),
-    defaultValues: isEditing
-      ? node
-      : {
-          title: "",
-          value: { type: "text", data: { id: crypto.randomUUID(), text: "" } },
-          folio_id,
-          id: id.current,
-        },
+    defaultValues: isEditing ? node : initialNode.current,
   });
+  const initialData = useRef(
+    nodeForm.getValues().value.data as iNodeValueDataSchema
+  );
 
   function onSubmit() {
-    const node = nodeForm.getValues();
+    let node = nodeForm.getValues();
+    const wasEdited = _.isEqual(node, initialNode);
+    node.wasEdited = wasEdited;
+
     if (isEditing) {
       editNode(node);
     } else {
@@ -57,10 +78,16 @@ export default function NodeForm(props: Props) {
     closeModal();
   }
 
-  const setNodeValue = (nNode: Omit<iNodeValueSchema, "node_id">) => {
+  const setNodeValue = (node: SetNewNode) => {
     // @ts-ignore
-    
-    nodeForm.setValue("value", { ...nNode, node_id: id.current });
+    const nNode = node as iNodeValueSchema;
+    nNode.data.wasEdited = isNodeValueDataEqual(
+      nNode.data as unknown as iNodeValueDataSchema,
+      initialData.current
+    );
+    nNode.node_id = id.current;
+    nNode.data.isNew = isNewNode;
+    nodeForm.setValue("value", nNode);
   };
 
   return (
