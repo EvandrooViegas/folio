@@ -22,10 +22,9 @@ import { Folio, FolioSchema, iCompleteFolio, iFolio } from "@/types/folio";
 import NodeListPreview from "./NodesListPreview";
 import { FolioFormContext } from "./context/FolioFormContext";
 import {  createOrUpdateNodes } from "@/services/nodes";
-import { createFolio, updateFolio } from "@/services/folio";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
-import { iNewNodeSchema } from "@/types/nodes";
+import { iNodeSchema } from "@/types/nodes";
 import { transformNodes } from "./transformNodes";
 
 
@@ -39,8 +38,8 @@ export default function  FolioForm(props?: Props) {
   const isEditing = !!folio
   const folioNodes = folio?.nodes
   
-  const defaultNodes = folioNodes ? transformNodes(folioNodes) : [] as iNewNodeSchema[]
-  const [nodes, setNodes] = useState<iNewNodeSchema[]>(defaultNodes);
+  const defaultNodes = folioNodes ? transformNodes(folioNodes) : [] as iNodeSchema[]
+  const [nodes, setNodes] = useState<iNodeSchema[]>(defaultNodes);
   const folioID = useRef(crypto.randomUUID());
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<Folio>({
@@ -64,15 +63,15 @@ export default function  FolioForm(props?: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
 
-  const setFormNode = (nNodes: iNewNodeSchema[]) => {
+  const setFormNode = (nNodes: iNodeSchema[]) => {
     setNodes(nNodes);
     fieldArray.replace(nNodes);
   }
-  const addNode = (nNode: iNewNodeSchema) => {
+  const addNode = (nNode: iNodeSchema) => {
     const nNodes = [nNode, ...nodes]
     setFormNode(nNodes)
   };
-  const editNode = (nNode: iNewNodeSchema) => {
+  const editNode = (nNode: iNodeSchema) => {
     const nNodes = nodes.filter(n => n.id != nNode.id)
     nNodes.push(nNode)
     setFormNode(nNodes)
@@ -92,9 +91,11 @@ const removeNode = (id: string) => {
   async function onSubmit(data: Folio) {
 
     setIsLoading(true);
-    delete data.nodes;
+    
+    //delete data.nodes;
     // folios
-    await createOrUpdateNodes(nodes, )
+    
+    await createOrUpdateNodes(nodes)
     toast.success(`Folio ${isEditing ? 'Edited' : 'Created'} successfully!`);
     router.push("/dashboard");
     setIsLoading(false);

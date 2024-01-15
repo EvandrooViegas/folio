@@ -1,62 +1,54 @@
-import { iGalleryNodeInsert, iNodeValueInsert, iNodeValueSchema, iTextNodeInsert, iVideoNodeInsert, iVideoNodeValueSchema } from "@/types/nodes";
+import {
+  iGalleryNodeInsert,
+  iGalleryValueDataSchema,
+  iNodeValueInsert,
+  iNodeValueSchema,
+  iTextNodeInsert,
+  iTextValueDataSchema,
+  iVideoNodeInsert,
+  iVideoValueDataSchema,
+} from "@/types/nodes";
 import { getNodeFileURL } from "./getters";
 
 export const transformNodeValueToInsert = async (
-    val: iNodeValueSchema,
-    isEditing: boolean
-  ): Promise<iNodeValueInsert | iNodeValueInsert[]> => {
-    switch (val.type) {
-      case "text":
+  val: iNodeValueSchema
+): Promise<iNodeValueInsert | iNodeValueInsert[] | undefined>  => {
+
+  switch (val.type) {
+    case "text":
+      const textData = val.data as iTextValueDataSchema;
+      return {
+        id: textData.id,
+        text: textData.text || "",
+        type: "text",
+        node_id: val.node_id,
+      } as iTextNodeInsert;
+    case "gallery":
+      const galleryData = val.data as unknown as iGalleryValueDataSchema[];
+      const pr = galleryData.map(async (i) => {
+        const url = await getNodeFileURL("gallery", i);
         return {
-          id: val.data.id,
-          text: val.data.text || "",
-          type: "text",
+          id: i.id,
+          type: "gallery",
           node_id: val.node_id,
-        } as iTextNodeInsert;
-      case "gallery":
-        const pr = val.data.map(async (i) => {
-          const url = await getNodeFileURL(
-            {
-              file: i.image,
-              isLocal: i.isImageFileLocal,
-              type: "gallery",
-              url: i.url,
-              id: i.id,
-            },
-            isEditing
-          );
-          if (!url) return;
-          return {
-            id: i.id,
-            type: "gallery",
-            node_id: val.node_id,
-            description: i.description || "",
-            title: i.title || "",
-            url,
-          } as iGalleryNodeInsert;
-        });
-        return await Promise.all(pr);
-  
-      case "video": {
-        const value = val as iVideoNodeValueSchema;
-        const url = await getNodeFileURL(
-          {
-            file: value.data.video,
-            isLocal: value.data.isVideoFileLocal,
-            type: "video",
-            url: value.data.url,
-            id: value.data.id,
-          },
-          isEditing
-        );
-        if (!url) return;
-        return {
-          id: value.data.id,
-          provider: value.data.provider,
+          description: i.description || "",
+          title: i.title || "",
           url,
-          node_id: value.node_id,
-          type: "video",
-        } as iVideoNodeInsert;
-      }
+        } as iGalleryNodeInsert;
+      });
+
+      return await Promise.all(pr);
+    case "video": {
+      const videoData = val.data as iVideoValueDataSchema;
+      const url = await getNodeFileURL("video", videoData);
+      if (!url) return;
+      return {
+        id: videoData.id,
+        provider: videoData.provider,
+        url,
+        node_id: val.node_id,
+        type: "video",
+      } as iVideoNodeInsert;
     }
-  };
+  }
+};

@@ -1,14 +1,14 @@
 "use client"
 import { Folio } from "@/types/folio";
-import { iNewNodeSchema } from "@/types/nodes";
+import { iNodeSchema } from "@/types/nodes";
 import { createContext, useContext } from "react";
 import { UseFormReturn } from "react-hook-form";
 
 
 type INewFolioFormContext = {
  form: UseFormReturn<Folio>
- addNode: (nNode: iNewNodeSchema) => void,
- editNode: (nNode: iNewNodeSchema) => void,
+ addNode: (nNode: iNodeSchema) => void,
+ editNode: (nNode: iNodeSchema) => void,
  removeNode: (id: string) => void;
  folio_id: string
 };
