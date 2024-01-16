@@ -7,10 +7,10 @@ help:
 
 .PHONY: commit
 commit:
-ifndef MESSAGE
+ifndef m
 	$(error MESSAGE is not defined. Please use: make commit MESSAGE='Your commit message')
 else
 	git add .
-	git commit -m "$(MESSAGE)"
+	git commit -m "$(m)"
 	git push origin master
 endif
