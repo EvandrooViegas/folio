@@ -21,5 +21,6 @@ export async function createOrUpdateNodes(nodes: iNodeSchema[]) {
   });
   await Promise.all(pr);
   const values = nodes.map((node) => node.value)
+  //@ts-ignore
   await insertOrEditNodesValues(values);
 }

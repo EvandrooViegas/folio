@@ -1,40 +1,24 @@
 import supabase from "@/lib/supabase";
-import { CDN_URL, constructFileURL, getFilePath, getNodeFileInfo } from "..";
+import { constructFileURL, getFilePath, getNodeFileInfo } from "..";
 
 const NODE_IMAGES_FOLDER = "node_images";
-const BUCKET_URL = `${CDN_URL}/${NODE_IMAGES_FOLDER}`;
-
 
 export async function editNodeImage(prevURL: string, image: File) {
   const { userID, fileName, fileExtension } = getNodeFileInfo(prevURL);
-  const url = constructFileURL({
+  const { path, url } = constructFileURL({
     usrID: userID,
     ext: fileExtension,
     fileName: fileName,
-  })
-  const res = await supabase.storage
-    .from(NODE_IMAGES_FOLDER)
-    .update(
-      url,
-      image
-    );
-    return url
+    folder: NODE_IMAGES_FOLDER,
+  });
+  await supabase.storage.from(NODE_IMAGES_FOLDER).update(path, image);
+  return url;
 }
-
 
 export async function uploadNodeImage(image: File) {
-  const path = await getFilePath(image)
-  await supabase.storage
-    .from(NODE_IMAGES_FOLDER)
-    .upload(path, image);
-  return `${BUCKET_URL}/${path}`;
+  const file = await getFilePath(image, NODE_IMAGES_FOLDER);
+  if(!file) return 
+  const { path, url } = file 
+  await supabase.storage.from(NODE_IMAGES_FOLDER).upload(path, image);
+  return url;
 }
-
-
-export async function removeNodeImages(paths: string[]) {
-  if(paths.length <= 0) return 
-  await supabase.storage
-    .from(NODE_IMAGES_FOLDER)
-    .remove(paths);
-}
-

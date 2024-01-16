@@ -62,7 +62,8 @@ export default function NodeForm(props: Props) {
   const defNode = isEditing ? propsNode : initialNode.current
   const nodeForm = useForm<iNodeSchema>({
     resolver: zodResolver(NodeFormSchema),
-    defaultValues: defNode 
+    //@ts-ignore
+    defaultValues:  defNode
   });
   const currNodeForm = nodeForm.getValues() 
 
@@ -87,7 +88,7 @@ export default function NodeForm(props: Props) {
   
     const isEqual = isNodeValueDataEqual(
       nNode.data as unknown as iNodeValueDataSchema,
-      currNodeForm.value.data
+      currNodeForm.value.data as unknown as iNodeValueDataSchema
     );
     nNode.data.wasEdited = !isEqual 
     nNode.data.isNew = isNewNode;

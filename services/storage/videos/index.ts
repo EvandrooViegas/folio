@@ -1,31 +1,24 @@
 import supabase from "@/lib/supabase";
-import env from "@/services/env";
 import { constructFileURL, getFilePath, getNodeFileInfo } from "..";
 
 const NODE_VIDEOS_FOLDER = "node_videos";
-const CDN_URL = `${env.supabaseUrl}/storage/v1/object/public`;
-const BUCKET_URL = `${CDN_URL}/${NODE_VIDEOS_FOLDER}`;
 
 export async function editNodeVideo(prevURL: string, video: File) {
   const { userID, fileName, fileExtension } = getNodeFileInfo(prevURL);
-  const url = constructFileURL({
+  const { url, path } = constructFileURL({
     usrID: userID,
     ext: fileExtension,
     fileName: fileName,
-  })
-  const res = await supabase.storage
-    .from(NODE_VIDEOS_FOLDER)
-    .update(
-      url,
-      video
-    );
-    return url
-      
+    folder: NODE_VIDEOS_FOLDER,
+  });
+  await supabase.storage.from(NODE_VIDEOS_FOLDER).update(path, video);
+  return url;
 }
 
 export async function uploadNodeVideo(video: File) {
-  const path = await getFilePath(video);
+  const file = await getFilePath(video, NODE_VIDEOS_FOLDER);
+  if(!file) return 
+  const { path, url } = file
   await supabase.storage.from(NODE_VIDEOS_FOLDER).upload(path, video);
-
-  return `${BUCKET_URL}/${path}`;
+  return url;
 }

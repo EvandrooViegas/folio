@@ -3,23 +3,27 @@ import { getAuthedUserID } from "../user";
 
 export const CDN_URL = `${env.supabaseUrl}/storage/v1/object/public`;
 
-export async function getFilePath(video: File) {
+export async function getFilePath(video: File, folder: string) {
 const usrID = await getAuthedUserID()
-  if (!usrID) return;
+  if (!usrID) return
   const ext = (video?.name as string).split(".")[1];
-  return constructFileURL({ ext, fileName: crypto.randomUUID(), usrID });
+  return constructFileURL({ ext, fileName: crypto.randomUUID(), usrID, folder });
 }
 
 export function constructFileURL({
   usrID,
   fileName,
-  ext
+  ext,
+  folder
 }: {
   usrID: string,
   fileName: string,
-  ext: string
+  ext: string,
+  folder: string
 }) {
-  return `${usrID}/${fileName}.${ext}`
+  const path = `${usrID}/${fileName}.${ext}`
+  const url = `${CDN_URL}/${folder}/${path}`
+  return { url, path }
 }
 
 export function getNodeFileInfo(fileURL: string) {

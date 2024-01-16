@@ -81,7 +81,7 @@ export async function getValuesList(
     valuesList.push({ ...v, isEditing });
   };
   const pr = values.map(async (item) => {
-    const isEditing = item.data.isNew === false && item.data.wasEdited;
+    const isEditing = item.data.isNew === false && item.data.wasEdited === true;
     const res = await transformNodeValueToInsert(item);
     if (!res) return;
     if (Array.isArray(res)) res.forEach((i) => push(isEditing, i));
