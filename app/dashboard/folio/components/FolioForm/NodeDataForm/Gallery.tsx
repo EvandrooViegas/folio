@@ -20,13 +20,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Title from "@/components/section/title";
 import { iGalleryValueDataSchema } from "@/types/nodes";
 import { galleryNodeSchemaData } from "@/types/nodes/values/gallery/iGalleryNode";
+import { useNodeValueDataContext } from "./context";
 
 export default function Gallery() {
   const [isLoading, setIsLoading] = useState(false);
-  const { setNodeValue, node } = useNodeContext();
-  const [previewImages, setPreviewImages] = useState(
-    (node.value?.data as unknown as iGalleryValueDataSchema[]) || []
-  );
+  const { setNodeValue } = useNodeContext();
+  const { initialNodeData } = useNodeValueDataContext<iGalleryValueDataSchema[]>()
+
+  const [previewImages, setPreviewImages] = useState(initialNodeData);
+
   const [isCreatingImage, setIsCreatingImage] = useState(false);
 
   const [isEditingImage, setIsEditingImage] = useState(false);
@@ -36,16 +38,20 @@ export default function Gallery() {
     defaultValues: {
       title: "",
       description: "",
+      isNew: true,
+      wasEdited: false
     },
   });
 
   const editImage = (image: iGalleryValueDataSchema) => {
     setIsEditingImage(true);
     imageForm.reset();
+    imageForm.setValue("id", image.id);
     imageForm.setValue("description", image.description);
     imageForm.setValue("title", image.title);
     imageForm.setValue("url", image.url);
-    imageForm.setValue("id", image.id);
+    imageForm.setValue("isNew", false);
+    imageForm.setValue("wasEdited", true);
   };
 
   const onFileUpload = async (e: React.FormEvent<HTMLInputElement>) => {
@@ -62,10 +68,9 @@ export default function Gallery() {
       imageForm.setValue("image", img);
       imageForm.setValue("isImageFileLocal", true);
 
-      if (!isEditingImage) {
+      if (isEditingImage) return 
         imageForm.setValue("id", crypto.randomUUID());
         setIsCreatingImage(true);
-      }
     } finally {
       setIsLoading(false);
     }

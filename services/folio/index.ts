@@ -2,19 +2,31 @@ import supabase from "@/lib/supabase";
 import { iCompleteFolio, iFolio, iNewFolio } from "@/types/folio";
 import { getAuthedUserID } from "../user";
 import { getNodesByFolioID } from "../nodes/getters";
+import removeObjProperties from "@/utils/removeObjProperties";
 
-export async function createFolio(folio: Omit<iNewFolio, "user_id">) {
+export async function createOrUpdateFolio(
+  folio: Omit<iNewFolio, "user_id">,
+  isEditing: boolean
+) {
+  if (!folio.id) return;
   const userID = await getAuthedUserID();
   if (!userID) return;
-  await supabase.from("folios").insert({ ...folio, user_id: userID });
-}
+  const [transformedFolio] = removeObjProperties<iCompleteFolio>(
+    ["nodes"],
+    folio as iCompleteFolio
+  );
 
-export async function updateFolio(folio: Omit<iNewFolio, "user_id">) {
-  const userID = await getAuthedUserID();
-  await supabase
-    .from("folios")
-    .update({ ...folio, user_id: userID })
-    .eq("id", folio.id);
+  transformedFolio.user_id = userID
+  if (isEditing) {
+    await supabase
+      .from("folios")
+      .update(transformedFolio)
+      .eq("id", folio.id);
+  } else {
+    await supabase
+      .from("folios")
+      .insert(transformedFolio);
+  }
 }
 
 export async function fetchUserFolios() {

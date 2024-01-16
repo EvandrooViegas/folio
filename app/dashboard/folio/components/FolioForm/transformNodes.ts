@@ -1,9 +1,10 @@
 import {
   iGalleryNode,
-  iGalleryNodeValueSchema,
+
   iGalleryValueDataSchema,
-  iNewNodeSchema,
+
   iNode,
+  iNodeSchema,
   iNodeValueDataSchema,
   iTextNode,
   iVideoNode,
@@ -12,7 +13,7 @@ import {
 
 // function is responsible for transform the nodes
 // from the database into a node list for the form
-export function transformNodes(nodes: iNode[]): iNewNodeSchema[] {
+export function transformNodes(nodes: iNode[]): iNodeSchema[] {
   return nodes.map((node) => {
     const data = getNodeDataByType(node);
     const n = {
@@ -24,7 +25,10 @@ export function transformNodes(nodes: iNode[]): iNewNodeSchema[] {
       },
       id: node.id,
       folio_id: node.folio_id,
-    } as iNewNodeSchema;
+      isNew: false,
+      wasEdited: false,
+       type: node.type
+    } as iNodeSchema;
     return n;
   });
 }
@@ -63,9 +67,9 @@ function getNodeDataByType(node: iNode): iNodeValueDataSchema {
         video: null,
         provider: videoValue?.provider || "local",
         url: videoValue?.url || "",
+        isVideoFileLocal: false,
         isNew: false,
         wasEdited: false,
-        isVideoFileLocal: false,
       } as iVideoValueDataSchema;
   }
 }

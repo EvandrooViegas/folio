@@ -3,8 +3,8 @@ import { iNodeTypes } from "..";
 
 const def = {
   id: z.string(),
-  wasEdited: z.boolean(),
-  isNew: z.boolean(),
+  wasEdited: z.boolean().default(false),
+  isNew: z.boolean().default(true),
 };
 
 const b = z.object(def)
@@ -14,13 +14,12 @@ export function createNodeValueDataSchema<T>(d: T) {
     ...def,
     ...(d),
   });
-
   return schema;
 }
 type Data<T> = z.ZodObject<
   //@ts-ignore
   Def,
-  "strip",
+  "strict",
   z.ZodTypeAny,
   T,
   T

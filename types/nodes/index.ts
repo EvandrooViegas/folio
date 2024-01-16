@@ -1,10 +1,10 @@
 import z from "zod";
 import { textNodeSchema, textNodeSchemaData } from "./values/text/iTextNode";
-import { galleryNodeSchema, galleryNodeSchemaData } from "./values/gallery/iGalleryNode";
+import { galleryNodeSchema, galleryNodeSchemaAsArray, galleryNodeSchemaData } from "./values/gallery/iGalleryNode";
 import { videoNodeSchema, videoNodeSchemaData } from "./values/video/iVideoNode";
 import { Database } from "@/lib/supabase/database.types";
 
-const nodeValue = z.union([textNodeSchema, galleryNodeSchema, videoNodeSchema])
+const nodeValue = z.union([textNodeSchema, galleryNodeSchemaAsArray, videoNodeSchema])
 const nodeValueData = z.union([textNodeSchemaData, galleryNodeSchemaData.array(), videoNodeSchemaData])
 
 const nodeTypes = z.union([z.literal("text"), z.literal("gallery"), z.literal("video")])
@@ -15,8 +15,9 @@ export const NodeFormSchema = z.object({
   value: nodeValue,
   id: z.string(),
   folio_id: z.string(),
-  wasEdited: z.boolean().default(true),
-  isNew: z.boolean()
+  wasEdited: z.boolean().default(false),
+  isNew: z.boolean().default(true),
+  type: nodeTypes
 });
 export type iNodeSchema = z.infer<typeof NodeFormSchema>;
 

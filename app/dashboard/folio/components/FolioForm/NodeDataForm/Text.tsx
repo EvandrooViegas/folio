@@ -4,10 +4,11 @@ import { useNodeContext } from "../context/NodeContext";
 import { ChangeEvent, useRef } from "react";
 import _ from "lodash";
 import { iTextValueDataSchema } from "@/types/nodes";
+import { useNodeValueDataContext } from "./context";
 export default function Text() {
   const { setNodeValue, node, isEditing } = useNodeContext();
-  const nodeData = node.value.data as iTextValueDataSchema;
-  const id = useRef(isEditing ? nodeData.id : crypto.randomUUID());
+  const { initialNodeData } = useNodeValueDataContext<iTextValueDataSchema>()
+  const id = useRef(isEditing ? initialNodeData.id : crypto.randomUUID());
 
   const onChange = (e: any) => {
     setNodeValue({
@@ -21,7 +22,7 @@ export default function Text() {
   return (
     <Textarea
       onChange={onChange}
-      defaultValue={nodeData?.text || ""}
+      defaultValue={initialNodeData?.text || ""}
       className="h-44 resize-none p-5"
     />
   );

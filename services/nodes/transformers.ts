@@ -1,11 +1,11 @@
-import { iNewNodeSchema, iNodeInsert } from "@/types/nodes";
+import { iNodeSchema, iNodeInsert } from "@/types/nodes";
 
-export function transformNodeToInsert(node: iNewNodeSchema, usrID: string): iNodeInsert {
+export function transformNodeToInsert(node: iNodeSchema, usrID: string): iNodeInsert {
     return {
       folio_id: node.folio_id,
       title: node.title,
       user_id: usrID,
-      type: node.value.type,
+      type: node.type,
       id: node.id,
     }
   }

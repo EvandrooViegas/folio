@@ -11,27 +11,15 @@ import { useRef, useState } from "react";
 import errorToast from "@/utils/errorToast";
 import { toast } from "react-toastify";
 import { iVideoValueDataSchema } from "@/types/nodes";
+import { useNodeValueDataContext } from "./context";
 
 type Video = {};
 export default function Video() {
   const [isLoading, setIsLoading] = useState(false);
-  const { setNodeValue, node, isEditing } = useNodeContext();
-  const valueID = node.value.data?.id
-  const id = useRef(valueID ? valueID : crypto.randomUUID())
-  const defaultVideo: iVideoValueDataSchema = 
-  isEditing
-    ? node.value.data as iVideoValueDataSchema
-    : {
-        id: id.current,
-        video: null,
-        url: "",
-        provider: "local",
-        isVideoFileLocal: true,
-        isNew: true,
-        wasEdited: false
-      } as iVideoValueDataSchema
+  const { setNodeValue } = useNodeContext();
 
-  const [video, setVideo] = useState(defaultVideo);
+  const { initialNodeData } = useNodeValueDataContext<iVideoValueDataSchema>()
+  const [video, setVideo] = useState(initialNodeData);
   const onFileUpload = async (e: React.FormEvent<HTMLInputElement>) => {
     try {
       setIsLoading(true);
@@ -49,7 +37,7 @@ export default function Video() {
         url,
         video: v,
         isVideoFileLocal: true,
-        id: id.current
+        id: initialNodeData.id
       } as iVideoValueDataSchema;
 
       setVideo(nVideo);

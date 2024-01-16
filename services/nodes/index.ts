@@ -8,13 +8,15 @@ export async function createOrUpdateNodes(nodes: iNodeSchema[]) {
   const userID = await getAuthedUserID();
   if (!userID) return;
   const pr = nodes.map((node) => {
-    if (!node.isNew && !node.wasEdited) return;
+   
     const transformedNode = transformNodeToInsert(node, userID);
-    if (node.isNew) {
-      return supabase.from("nodes").insert(transformedNode);
+    console.log(transformedNode)
+    const isEditing = node.isNew === false && node.wasEdited
+    console.log(isEditing)
+    if (isEditing) {
+      return supabase.from("nodes").update(transformedNode).eq("id", node.id);
     } else {
-      if (!node.wasEdited) return;
-      supabase.from("nodes").update(transformedNode).eq("id", node.id);
+      return supabase.from("nodes").insert(transformedNode);
     }
   });
   await Promise.all(pr);

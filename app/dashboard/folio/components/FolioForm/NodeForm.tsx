@@ -26,6 +26,7 @@ import {
   iTextNodeValueSchema,
 } from "@/types/nodes";
 import isNodeValueDataEqual from "./utils/isNodeValueDataEqual";
+import isNodeEqual from "./utils/isNodeEqual";
 
 const FormSchema = NodeFormSchema;
 
@@ -35,45 +36,47 @@ type Props = {
 };
 
 export default function NodeForm(props: Props) {
-  const { node } = props;
-  const isEditing = !!node;
+  const { node: propsNode } = props;
+  const isEditing = !!propsNode;
   const { closeModal } = useModalContext();
   const { addNode, editNode, folio_id } = useFolioFormContext();
-  const id = useRef(crypto.randomUUID());
+  const id = useRef(isEditing ? propsNode.id : crypto.randomUUID());
   const isNewNode = !isEditing;
 
   const initialValue = useRef({
     type: "text",
     node_id: id.current,
-    data: { id: crypto.randomUUID(), isNew: true, wasEdited: false, text: "" },
-  } as iNodeValueSchema);
+    data: { id: crypto.randomUUID(), isNew: isNewNode, wasEdited: false, text: "" },
+  } as iTextNodeValueSchema);
 
   const initialNode = useRef({
     folio_id: folio_id,
     id: id.current,
-    isNew: true,
+    isNew: isNewNode,
     title: "",
     wasEdited: false,
     value: initialValue.current,
+    type: initialValue.current.type
   } as iNodeSchema);
 
+  const defNode = isEditing ? propsNode : initialNode.current
   const nodeForm = useForm<iNodeSchema>({
     resolver: zodResolver(NodeFormSchema),
-    defaultValues: isEditing ? node : initialNode.current,
+    defaultValues: defNode 
   });
-  const initialData = useRef(
-    nodeForm.getValues().value.data as iNodeValueDataSchema
-  );
+  const currNodeForm = nodeForm.getValues() 
 
   function onSubmit() {
-    let node = nodeForm.getValues();
-    const wasEdited = _.isEqual(node, initialNode);
-    node.wasEdited = wasEdited;
-
+    let newNode = nodeForm.getValues();
+    const oldNode = defNode
+    const isEqual = isNodeEqual(newNode, oldNode);
+    newNode.wasEdited = !isEqual;
+    newNode.isNew = isNewNode;
+    newNode.type = newNode.value.type
     if (isEditing) {
-      editNode(node);
+      editNode(newNode);
     } else {
-      addNode(node);
+      addNode(newNode);
     }
     closeModal();
   }
@@ -81,12 +84,16 @@ export default function NodeForm(props: Props) {
   const setNodeValue = (node: SetNewNode) => {
     // @ts-ignore
     const nNode = node as iNodeValueSchema;
-    nNode.data.wasEdited = isNodeValueDataEqual(
+  
+    const isEqual = isNodeValueDataEqual(
       nNode.data as unknown as iNodeValueDataSchema,
-      initialData.current
+      currNodeForm.value.data
     );
-    nNode.node_id = id.current;
+    nNode.data.wasEdited = !isEqual 
     nNode.data.isNew = isNewNode;
+
+    nNode.node_id = id.current;
+
     nodeForm.setValue("value", nNode);
   };
 
@@ -96,7 +103,7 @@ export default function NodeForm(props: Props) {
         setNodeValue,
         form: nodeForm,
         node: nodeForm.getValues(),
-        isEditing: !!node,
+        isEditing: !!propsNode,
       }}
     >
       <Form {...nodeForm}>
@@ -119,7 +126,7 @@ export default function NodeForm(props: Props) {
           <FormField
             control={nodeForm.control}
             name={`value.data`}
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <NodeValue />
                 <FormMessage />

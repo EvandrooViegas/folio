@@ -1,13 +1,12 @@
 import React from "react";
 import Node from "./NodeTypes";
-import { getNodesByFolioID } from "@/services/nodes";
+import { getNodesByFolioID } from "@/services/nodes/getters";
 
 type Props = {
   id: string
 }
 export default async function Nodes({ id }: Props) {
   const nodes = await getNodesByFolioID(id)
-  console.log(nodes)
   return (
     <div className="flex flex-col gap-8">
       {nodes ? nodes.map((node) => (

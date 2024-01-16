@@ -18,42 +18,44 @@ import SectionTitle from "@/components/section/title";
 import NodeForm from "./NodeForm";
 import { useRef, useState } from "react";
 import Modal from "@/components/ui/modal";
-import { Folio, FolioSchema, iCompleteFolio, iFolio } from "@/types/folio";
+import { Folio, FolioSchema, iCompleteFolio } from "@/types/folio";
 import NodeListPreview from "./NodesListPreview";
 import { FolioFormContext } from "./context/FolioFormContext";
-import {  createOrUpdateNodes } from "@/services/nodes";
+import { createOrUpdateNodes } from "@/services/nodes";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { iNodeSchema } from "@/types/nodes";
 import { transformNodes } from "./transformNodes";
-
-
-
+import { createOrUpdateFolio } from "@/services/folio";
 
 type Props = {
-  folio: iCompleteFolio,
-}
-export default function  FolioForm(props?: Props) {
-  const { folio } = props || {}
-  const isEditing = !!folio
-  const folioNodes = folio?.nodes
-  
-  const defaultNodes = folioNodes ? transformNodes(folioNodes) : [] as iNodeSchema[]
+  folio: iCompleteFolio;
+};
+export default function FolioForm(props?: Props) {
+  const { folio } = props || {};
+  const isEditing = !!folio;
+  const folioNodes = folio?.nodes;
+
+  const defaultNodes = folioNodes
+    ? transformNodes(folioNodes)
+    : ([] as iNodeSchema[]);
   const [nodes, setNodes] = useState<iNodeSchema[]>(defaultNodes);
-  const folioID = useRef(crypto.randomUUID());
+  const folioID = useRef(isEditing ? folio.id : crypto.randomUUID());
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<Folio>({
     resolver: zodResolver(FolioSchema),
-    defaultValues: !isEditing ? {
-      name: "",
-      description: "",
-      nodes:defaultNodes,
-      id: folioID.current,
-    } : {  
-      ...folio,
-      description: folio?.description || "",
-      nodes: defaultNodes
-    },
+    defaultValues: !isEditing
+      ? {
+          name: "",
+          description: "",
+          nodes: defaultNodes,
+          id: folioID.current,
+        }
+      : {
+          ...folio,
+          description: folio?.description || "",
+          nodes: defaultNodes,
+        },
   });
   const router = useRouter();
   const fieldArray = useFieldArray({
@@ -62,25 +64,24 @@ export default function  FolioForm(props?: Props) {
   });
   const [isOpen, setIsOpen] = useState(false);
 
-
   const setFormNode = (nNodes: iNodeSchema[]) => {
     setNodes(nNodes);
     fieldArray.replace(nNodes);
-  }
+  };
   const addNode = (nNode: iNodeSchema) => {
-    const nNodes = [nNode, ...nodes]
-    setFormNode(nNodes)
+    const nNodes = [nNode, ...nodes];
+    setFormNode(nNodes);
   };
   const editNode = (nNode: iNodeSchema) => {
-    const nNodes = nodes.filter(n => n.id != nNode.id)
-    nNodes.push(nNode)
-    setFormNode(nNodes)
-  }
+    const nNodes = nodes.filter((n) => n.id != nNode.id);
+    nNodes.push(nNode);
+    setFormNode(nNodes);
+  };
 
-const removeNode = (id: string) => {
-  const nNodes = nodes.filter(n => n.id != id)
-  setFormNode(nNodes)
-}
+  const removeNode = (id: string) => {
+    const nNodes = nodes.filter((n) => n.id != id);
+    setFormNode(nNodes);
+  };
 
   const openModal = () => {
     setIsOpen(true);
@@ -89,14 +90,12 @@ const removeNode = (id: string) => {
     setIsOpen(false);
   };
   async function onSubmit(data: Folio) {
-
     setIsLoading(true);
-    
-    //delete data.nodes;
-    // folios
-    
-    await createOrUpdateNodes(nodes)
-    toast.success(`Folio ${isEditing ? 'Edited' : 'Created'} successfully!`);
+    console.log("folio: ", data)
+    console.log("nodes: ", nodes)
+    await createOrUpdateFolio(data, isEditing);
+    await createOrUpdateNodes(nodes);
+    toast.success(`Folio ${isEditing ? "Edited" : "Created"} successfully!`);
     router.push("/dashboard");
     setIsLoading(false);
   }
@@ -111,7 +110,9 @@ const removeNode = (id: string) => {
         </Modal>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-            <SectionTitle>{isEditing ? `Update Your Folio` : `Create a New Folio`}</SectionTitle>
+            <SectionTitle>
+              {isEditing ? `Update Your Folio` : `Create a New Folio`}
+            </SectionTitle>
             <FormField
               control={form.control}
               name="name"
@@ -185,8 +186,8 @@ const removeNode = (id: string) => {
                 </FormItem>
               )}
             />
-            <Button type="submit"  isLoading={isLoading}>
-              {isEditing ?  'Save Changes' : 'Submit'  }
+            <Button type="submit" isLoading={isLoading}>
+              {isEditing ? "Save Changes" : "Submit"}
             </Button>
           </form>
         </Form>
