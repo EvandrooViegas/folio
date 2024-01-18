@@ -24,6 +24,7 @@ import {
   iNodeValueDataSchema,
   iNodeValueSchema,
   iTextNodeValueSchema,
+  iTextValueDataSchema,
 } from "@/types/nodes";
 import isNodeValueDataEqual from "./utils/isNodeValueDataEqual";
 import isNodeEqual from "./utils/isNodeEqual";
@@ -46,8 +47,14 @@ export default function NodeForm(props: Props) {
   const initialValue = useRef({
     type: "text",
     node_id: id.current,
-    data: { id: crypto.randomUUID(), isNew: isNewNode, wasEdited: false, text: "" },
-  } as iTextNodeValueSchema);
+    data: {
+      id: crypto.randomUUID(),
+      isNew: isNewNode,
+      wasEdited: false,
+      wasRemoved: false,
+      text: "",
+    } satisfies iTextValueDataSchema,
+  } satisfies iTextNodeValueSchema);
 
   const initialNode = useRef({
     folio_id: folio_id,
@@ -55,25 +62,26 @@ export default function NodeForm(props: Props) {
     isNew: isNewNode,
     title: "",
     wasEdited: false,
+    wasRemoved: false,
     value: initialValue.current,
-    type: initialValue.current.type
-  } as iNodeSchema);
+    type: initialValue.current.type,
+  } satisfies iNodeSchema);
 
-  const defNode = isEditing ? propsNode : initialNode.current
+  const defNode = isEditing ? propsNode : initialNode.current;
   const nodeForm = useForm<iNodeSchema>({
     resolver: zodResolver(NodeFormSchema),
     //@ts-ignore
-    defaultValues:  defNode
+    defaultValues: defNode,
   });
-  const currNodeForm = nodeForm.getValues() 
+  const currNodeForm = nodeForm.getValues();
 
   function onSubmit() {
     let newNode = nodeForm.getValues();
-    const oldNode = defNode
+    const oldNode = defNode;
     const isEqual = isNodeEqual(newNode, oldNode);
     newNode.wasEdited = !isEqual;
     newNode.isNew = isNewNode;
-    newNode.type = newNode.value.type
+    newNode.type = newNode.value.type;
     if (isEditing) {
       editNode(newNode);
     } else {
@@ -85,12 +93,12 @@ export default function NodeForm(props: Props) {
   const setNodeValue = (node: SetNewNode) => {
     // @ts-ignore
     const nNode = node as iNodeValueSchema;
-  
+
     const isEqual = isNodeValueDataEqual(
       nNode.data as unknown as iNodeValueDataSchema,
       currNodeForm.value.data as unknown as iNodeValueDataSchema
     );
-    nNode.data.wasEdited = !isEqual 
+    nNode.data.wasEdited = !isEqual;
     nNode.data.isNew = isNewNode;
 
     nNode.node_id = id.current;

@@ -72,23 +72,26 @@ export async function getNodeValue(type: iNodeTypes, nodeID: string) {
   }
 }
 
-type InsertNode = iNodeValueInsert & { isEditing: boolean };
+type Opt = { isEditing: boolean; shouldBeRemoved: boolean };
+type InsertNode = iNodeValueInsert & Opt;
+
 export async function getValuesList(
   values: iNodeValueSchema[]
 ): Promise<InsertNode[]> {
-  const valuesList = [] as InsertNode[];
-  const push = (isEditing: boolean, v: iNodeValueInsert) => {
-    valuesList.push({ ...v, isEditing });
-  };
-  const pr = values.map(async (item) => {
-    const isEditing = item.data.isNew === false && item.data.wasEdited === true;
-    const res = await transformNodeValueToInsert(item);
-    if (!res) return;
-    if (Array.isArray(res)) res.forEach((i) => push(isEditing, i));
-    else push(isEditing, res);
+  const valuesList = values.map(value => {
+    if (Array.isArray(value)) return value;
+    else return value;
   });
-  await Promise.all(pr);
-  return valuesList;
+  const p = valuesList.map(async (value) => {
+    const transformedValue = await transformNodeValueToInsert(value);
+    const opt = {
+      isEditing: value.data.isNew === false && value.data.wasEdited === true,
+      shouldBeRemoved: value.data.wasRemoved || false,
+    } satisfies Opt;
+    return { ...transformedValue, ...opt };
+  });
+
+  return await Promise.all(p);
 }
 
 export function getTableName(type?: iNodeTypes | null) {

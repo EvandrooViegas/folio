@@ -24,7 +24,7 @@ export default function NodeValue() {
   };
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-8">
       <div className="flex flex-wrap gap-1">
         {types.map((type, idx) => (
           <Button

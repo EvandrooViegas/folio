@@ -4,11 +4,13 @@ import { iNodeTypes } from "..";
 const def = {
   id: z.string(),
   wasEdited: z.boolean().default(false),
+  wasRemoved: z.boolean().default(false),
   isNew: z.boolean().default(true),
 };
 
 const b = z.object(def)
 type Def = z.infer<typeof b>;
+export type iNodeValueDataBase = Def
 export function createNodeValueDataSchema<T>(d: T) {
   const schema = z.object({
     ...def,

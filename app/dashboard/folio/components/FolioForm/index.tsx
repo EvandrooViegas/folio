@@ -29,7 +29,8 @@ import { transformNodes } from "./transformNodes";
 import { createOrUpdateFolio } from "@/services/folio";
 
 type Props = {
-  folio: iCompleteFolio;
+  
+  folio?: iCompleteFolio;
 };
 export default function FolioForm(props?: Props) {
   const { folio } = props || {};
@@ -44,6 +45,7 @@ export default function FolioForm(props?: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<Folio>({
     resolver: zodResolver(FolioSchema),
+    //@ts-ignore
     defaultValues: !isEditing
       ? {
           name: "",
@@ -53,33 +55,34 @@ export default function FolioForm(props?: Props) {
         }
       : {
           ...folio,
-          description: folio?.description || "",
           nodes: defaultNodes,
         },
   });
   const router = useRouter();
-  const fieldArray = useFieldArray({
+  const nodesFieldArr = useFieldArray({
     control: form.control,
     name: "nodes",
   });
   const [isOpen, setIsOpen] = useState(false);
 
   const setFormNode = (nNodes: iNodeSchema[]) => {
+    console.log(nNodes)
     setNodes(nNodes);
-    fieldArray.replace(nNodes);
+    nodesFieldArr.replace(nNodes);
   };
   const addNode = (nNode: iNodeSchema) => {
     const nNodes = [nNode, ...nodes];
     setFormNode(nNodes);
   };
   const editNode = (nNode: iNodeSchema) => {
-    const nNodes = nodes.filter((n) => n.id != nNode.id);
-    nNodes.push(nNode);
+    const nNodes = nodes.map((n) => (n.id === nNode.id ? nNode : n));
     setFormNode(nNodes);
   };
 
   const removeNode = (id: string) => {
-    const nNodes = nodes.filter((n) => n.id != id);
+    const nNodes = nodes.map((n) =>
+      n.id === id ? ({ ...n, wasRemoved: true } as iNodeSchema) : n
+    );
     setFormNode(nNodes);
   };
 
@@ -91,11 +94,12 @@ export default function FolioForm(props?: Props) {
   };
   async function onSubmit(data: Folio) {
     setIsLoading(true);
-    console.log("folio: ", data)
-    console.log("nodes: ", nodes)
+
     await createOrUpdateFolio(data, isEditing);
     await createOrUpdateNodes(nodes);
+
     toast.success(`Folio ${isEditing ? "Edited" : "Created"} successfully!`);
+
     router.push("/dashboard");
     setIsLoading(false);
   }

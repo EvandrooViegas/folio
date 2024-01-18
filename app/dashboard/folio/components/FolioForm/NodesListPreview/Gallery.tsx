@@ -1,9 +1,9 @@
-import { IGalleryNodeData } from "@/types/nodes/values/gallery/iGalleryNode";
+import { iGalleryValueDataSchema } from "@/types/nodes";
 import Image from "next/image";
 import React from "react";
 
 type Props = {
-  gallery: IGalleryNodeData[] | null;
+  gallery: iGalleryValueDataSchema[] | null;
 };
 export default function Gallery(props: Props) {
   const { gallery } = props;

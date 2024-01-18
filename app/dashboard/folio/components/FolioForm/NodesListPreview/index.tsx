@@ -1,7 +1,6 @@
 import Icon from "@/components/ui/Icon";
-import { iNewNodeSchema } from "@/types/nodes";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Text from "./Text";
 import Gallery from "./Gallery";
 import {
@@ -11,20 +10,40 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  dropdownItemTextClassName,
 } from "@/components/ui/dropdown-menu";
 import Modal from "@/components/ui/modal";
 import NodeForm from "../NodeForm";
+import { iGalleryValueDataSchema, iNodeSchema } from "@/types/nodes";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useFolioFormContext } from "../context/FolioFormContext";
+import { Button } from "@/components/ui/button";
 
 type Props = {
-  nodes: iNewNodeSchema[];
+  nodes: iNodeSchema[];
 };
 export default function NodeListPreview(props: Props) {
   const { nodes } = props;
+  const filteredNodes = useMemo(() => {
+    return nodes.filter(n => !n.wasRemoved)
+  }, [nodes])
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<null | iNewNodeSchema>(null)
-  const openModal = (n: iNewNodeSchema) => {
+  const [selectedNode, setSelectedNode] = useState<null | iNodeSchema>(null);
+  const { removeNode } = useFolioFormContext()
+  const openModal = (n: iNodeSchema) => {
     setIsOpen(true);
-    setSelectedNode(n)
+    setSelectedNode(n);
   };
   const closeModal = () => {
     setIsOpen(false);
@@ -36,9 +55,9 @@ export default function NodeListPreview(props: Props) {
           <NodeForm node={selectedNode} />
         </Modal>
       )}
-      {nodes.length > 0 ? (
+      {filteredNodes.length > 0 ? (
         <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6  grid-cols-1 gap-4 max-w-[2000px] max-h-[300px]  mx-auto">
-          {nodes.map((node, idx) => (
+          {filteredNodes.map((node, idx) => (
             <div className="flex flex-col gap-3 p-1 text-dimmed" key={idx}>
               <div className="flex items-center gap-1 relative w-full ">
                 <span className="font-semibold truncate text-sm">
@@ -53,13 +72,35 @@ export default function NodeListPreview(props: Props) {
                       <DropdownMenuItem onClick={() => openModal(node)}>
                         Edit
                       </DropdownMenuItem>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild className="w-full">
+                          <button className={dropdownItemTextClassName} >
+                          Remove
+                          </button>
+
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Are you sure?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                             If you remove this node, you can still see it by refreshing the page, but all of the changes made until now are going to be lost.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => removeNode(node.id)}>Continue</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
               </div>
               <div className="overflow-hidden text-clip break-words rounded">
                 {node.value.type === "gallery" && (
-                  <Gallery gallery={node.value.data} />
+                  <Gallery gallery={node.value.data as iGalleryValueDataSchema[]} />
                 )}
 
                 {node.value.type === "text" && <Text text={node.value.data} />}

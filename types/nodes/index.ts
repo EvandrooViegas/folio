@@ -16,6 +16,7 @@ export const NodeFormSchema = z.object({
   id: z.string(),
   folio_id: z.string(),
   wasEdited: z.boolean().default(false),
+  wasRemoved: z.boolean().default(false),
   isNew: z.boolean().default(true),
   type: nodeTypes
 });
@@ -29,7 +30,9 @@ export type iNodeValueSchema = iTextNodeValueSchema | iGalleryNodeValueSchema  |
 export type iTextValueDataSchema = z.infer<typeof textNodeSchemaData>
 export type iGalleryValueDataSchema = z.infer<typeof galleryNodeSchemaData>
 export type iVideoValueDataSchema = z.infer<typeof videoNodeSchemaData>
+
 export type iNodeValueDataSchema = z.infer<typeof nodeValueData>
+export type iNodeValueDataSchemaUnit = iTextValueDataSchema | iGalleryValueDataSchema | iVideoValueDataSchema
 
 
 

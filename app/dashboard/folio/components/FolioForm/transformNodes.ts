@@ -1,15 +1,15 @@
 import {
   iGalleryNode,
-
   iGalleryValueDataSchema,
-
   iNode,
   iNodeSchema,
   iNodeValueDataSchema,
   iTextNode,
+  iTextValueDataSchema,
   iVideoNode,
   iVideoValueDataSchema,
 } from "@/types/nodes";
+import { iNodeValueDataBase } from "@/types/nodes/values";
 
 // function is responsible for transform the nodes
 // from the database into a node list for the form
@@ -27,49 +27,54 @@ export function transformNodes(nodes: iNode[]): iNodeSchema[] {
       folio_id: node.folio_id,
       isNew: false,
       wasEdited: false,
-       type: node.type
+      wasRemoved: false,
+      type: node.type,
     } as iNodeSchema;
     return n;
   });
 }
 
+const getValueDataBase = <T>(
+  node: iNode,
+  data: Omit<Omit<Omit<Omit<T, "isNew">, "wasEdited">, "wasRemoved">, "id">
+) => {
+  const base: iNodeValueDataBase = {
+    isNew: false,
+    wasEdited: false,
+    wasRemoved: false,
+    id: node.value.id,
+  };
+  return {
+    ...base,
+    ...data,
+  };
+};
 function getNodeDataByType(node: iNode): iNodeValueDataSchema {
   switch (node.type) {
     case "text":
       const textValue = node.value as iTextNode;
-      return {
+      return getValueDataBase<iTextValueDataSchema>(node, {
         text: textValue?.text || "",
-        id: textValue?.id || "",
-        wasEdited: false,
-        isNew: false,
-      };
+      });
     case "gallery":
       const galleryValue = (node.value as unknown as iGalleryNode[]) || [];
-
-      return galleryValue.map((i) => {
-        const image: iGalleryValueDataSchema = {
-          id: i.id,
+      return galleryValue.map((i) =>
+        getValueDataBase<iGalleryValueDataSchema>(node, {
           url: i.url,
           description: i.description || "",
           image: null,
           title: i.title || "",
           isImageFileLocal: false,
-          isNew: false,
-          wasEdited: false,
-        };
-        return image;
-      });
+        })
+      );
 
     case "video":
       const videoValue = node.value as iVideoNode;
-      return {
-        id: videoValue.id,
+      return getValueDataBase<iVideoValueDataSchema>(node, {
         video: null,
         provider: videoValue?.provider || "local",
         url: videoValue?.url || "",
         isVideoFileLocal: false,
-        isNew: false,
-        wasEdited: false,
-      } as iVideoValueDataSchema;
+      });
   }
 }

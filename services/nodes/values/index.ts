@@ -8,11 +8,16 @@ export async function insertOrEditNodesValues(values: iNodeValueSchema[]) {
   const pr = list.map((value) => {
     const from = getTableName(value.type);
     if (!from) return;
+
     const isEditing = value.isEditing;
+    const shouldBeRemoved = value.shouldBeRemoved
     const valueToInsert = removeObjProperties<typeof value>(
-      ["isEditing"],
+      ["isEditing", "shouldBeRemoved"],
       value
     );
+    if(shouldBeRemoved) {
+      return supabase.from(from).delete().eq("id", value.id)
+    }
     if (isEditing) {
       return supabase.from(from).update(valueToInsert).eq("id", value.id);
     } else {

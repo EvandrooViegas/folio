@@ -10,9 +10,11 @@ export async function createOrUpdateNodes(nodes: iNodeSchema[]) {
   const pr = nodes.map((node) => {
    
     const transformedNode = transformNodeToInsert(node, userID);
-    console.log(transformedNode)
     const isEditing = node.isNew === false && node.wasEdited
-    console.log(isEditing)
+    const shouldBeRemoved = node.wasRemoved
+    if(shouldBeRemoved) {
+      return supabase.from("nodes").delete().eq("id", node.id)
+    }
     if (isEditing) {
       return supabase.from("nodes").update(transformedNode).eq("id", node.id);
     } else {
