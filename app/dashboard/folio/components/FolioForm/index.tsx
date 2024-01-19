@@ -96,6 +96,7 @@ export default function FolioForm(props?: Props) {
     setIsLoading(true);
 
     await createOrUpdateFolio(data, isEditing);
+    console.log(nodes)
     await createOrUpdateNodes(nodes);
 
     toast.success(`Folio ${isEditing ? "Edited" : "Created"} successfully!`);

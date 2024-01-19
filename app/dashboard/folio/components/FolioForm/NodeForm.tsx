@@ -92,14 +92,25 @@ export default function NodeForm(props: Props) {
 
   const setNodeValue = (node: SetNewNode) => {
     // @ts-ignore
-    const nNode = node as iNodeValueSchema;
+    let nNode = node as iNodeValueSchema;
+    if (Array.isArray(node.data)) {
+      nNode.data = node.data.map((item) => {
+        const prevValue = node.data.find((i) => i.id === item.id) as unknown;
+        if (!prevValue) {
+          return { ...item, wasEdited: true, isNew: isNewNode };
+        }
+        const isEqual = isNodeValueDataEqual(item as unknown, prevValue);
+        return { ...item, wasEdited: !isEqual, isNew: isNewNode };
+      });
+    } else {
+      const isEqual = isNodeValueDataEqual(
+        nNode.data as unknown as iNodeValueDataSchema,
+        currNodeForm.value.data as unknown as iNodeValueDataSchema
+      );
+      nNode.data.wasEdited = !isEqual;
+      nNode.data.isNew = isNewNode;
+    }
 
-    const isEqual = isNodeValueDataEqual(
-      nNode.data as unknown as iNodeValueDataSchema,
-      currNodeForm.value.data as unknown as iNodeValueDataSchema
-    );
-    nNode.data.wasEdited = !isEqual;
-    nNode.data.isNew = isNewNode;
 
     nNode.node_id = id.current;
 

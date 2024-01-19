@@ -13,8 +13,8 @@ export const galleryNodeSchemaData = createNodeValueDataSchema({
     .optional(),
   description: z
     .string()
-    .max(3000, {
-      message: "Description must not have more than 100 characters.",
+    .max(300, {
+      message: "Description must not have more than 300 characters.",
     })
     .default("")
     .optional(),
