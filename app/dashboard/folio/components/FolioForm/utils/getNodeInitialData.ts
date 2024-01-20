@@ -12,19 +12,21 @@ export default function getNodeInitialData(
   isEditing: boolean
 ) {
   const nodeData = node.value.data;
-  const id = isEditing ? nodeData.id : crypto.randomUUID();
+  const id = nodeData.id || crypto.randomUUID();
   const isNew = !isEditing;
   const wasEdited = false;
+const wasRemoved = false
   switch (type) {
     case "text":
       return {
         id,
-        isNew,
         text: (nodeData as iTextValueDataSchema).text,
+        isNew,
         wasEdited,
-      } as iTextValueDataSchema;
+        wasRemoved
+      } satisfies iTextValueDataSchema;
     case "gallery":
-      return isEditing ? nodeData : ([] as iGalleryValueDataSchema[]);
+      return (isEditing ? nodeData : []) satisfies iGalleryValueDataSchema[]
     case "video":
       return {
         id,
@@ -33,7 +35,8 @@ export default function getNodeInitialData(
         provider: "local",
         url: isEditing ? (nodeData as iVideoValueDataSchema).url : "",
         wasEdited,
+        wasRemoved,
         video: null,
-      } as iVideoValueDataSchema;
+      } satisfies iVideoValueDataSchema;
   }
 }

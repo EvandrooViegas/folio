@@ -1,7 +1,9 @@
 import z from "zod";
 import { iNodeTypes } from "..";
 
-const def = {
+// every time that a new property is being added here dont forget to
+// update the 
+export const def = {
   id: z.string(),
   wasEdited: z.boolean().default(false),
   wasRemoved: z.boolean().default(false),
@@ -31,5 +33,5 @@ export function createNodeValueSchema<T>(t: iNodeTypes, data: Data<T>) {
     type: z.literal(t),
     node_id: z.string(),
     data,
-  });
+  }) 
 }

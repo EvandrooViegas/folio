@@ -7,7 +7,7 @@ type Props = {
 };
 export default function Gallery(props: Props) {
   const { gallery } = props;
-  const slicedGallery = gallery?.slice(0, 4)
+  const slicedGallery = gallery?.slice(0, 4).filter(img => !img.wasRemoved)
   if (!slicedGallery) return null;
   return (
     <div className="grid grid-cols-2 gap-0.5 bg-neutral-200 ">

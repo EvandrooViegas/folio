@@ -1,4 +1,4 @@
-import { iNodeSchema, iNodeValueDataSchema, iTextValueDataSchema } from "@/types/nodes";
+import { def, iNodeSchema, iNodeValueDataSchema, iTextValueDataSchema } from "@/types/nodes";
 import removeObjProperties from "@/utils/removeObjProperties";
 import _ from "lodash";
 
@@ -7,7 +7,7 @@ export default function isNodeEqual(data1: Data, data2: Data) {
   const [transformed1, transformed2] =
     removeObjProperties<Data>(
       //@ts-ignore
-      ["wasEdited", "isNew", "value"],
+      Object.keys(def),
       data1,
       data2
     );

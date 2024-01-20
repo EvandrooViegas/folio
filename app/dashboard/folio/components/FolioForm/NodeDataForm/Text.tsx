@@ -6,18 +6,15 @@ import _ from "lodash";
 import { iTextValueDataSchema } from "@/types/nodes";
 import { useNodeValueDataContext } from "./context";
 export default function Text() {
-  const { setNodeValue, node, isEditing } = useNodeContext();
+  const { setNodeDataValue } = useNodeContext();
   const { initialNodeData } = useNodeValueDataContext<iTextValueDataSchema>()
-  const id = useRef(isEditing ? initialNodeData.id : crypto.randomUUID());
 
   const onChange = (e: any) => {
-    setNodeValue({
-      type: "text",
-      data: {
-        text: e?.target?.value,
-        id: id.current,
-      } as iTextValueDataSchema,
-    });
+    const nData = {
+        text: (e?.target?.value as string)  || "",
+        id: initialNodeData.id,
+    }
+    setNodeDataValue(nData, initialNodeData, "text");
   };
   return (
     <Textarea

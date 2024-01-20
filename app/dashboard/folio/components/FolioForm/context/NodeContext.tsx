@@ -1,19 +1,14 @@
 "use client";
-import {
-  iNodeSchema,
-  iNodeValueDataSchema,
-  iNodeValueSchema,
-} from "@/types/nodes";
+import { iNodeSchema, iNodeTypes, iNodeValueDataSchema } from "@/types/nodes";
 import { createContext, useContext } from "react";
 import { UseFormReturn } from "react-hook-form";
 
-export type SetNewNode = Omit<Omit<iNodeValueSchema, "node_id">, "data"> & {
-  data: Omit<Omit<iNodeValueDataSchema, "isNew">, "wasEdited">;
-  node_id?: iNodeValueSchema["node_id"];
-};
-
 type INodeContext = {
-  setNodeValue: (nValue: SetNewNode) => void;
+  setNodeDataValue: (
+    nData: Omit<Omit<Omit<iNodeValueDataSchema, "wasEdited">, "isNew">, "wasRemoved">,
+    prevData: iNodeValueDataSchema,
+    type: iNodeTypes
+  ) => void;
   form: UseFormReturn<iNodeSchema>;
   node: iNodeSchema;
   isEditing: boolean;

@@ -6,19 +6,24 @@ import { Database } from "@/lib/supabase/database.types";
 
 const nodeValue = z.union([textNodeSchema, galleryNodeSchemaAsArray, videoNodeSchema])
 const nodeValueData = z.union([textNodeSchemaData, galleryNodeSchemaData.array(), videoNodeSchemaData])
+export const def = {
+  wasEdited: z.boolean().default(false),
+  wasRemoved: z.boolean().default(false),
+  isNew: z.boolean().default(true),
+  value: nodeValue,
+
+}
+
 
 const nodeTypes = z.union([z.literal("text"), z.literal("gallery"), z.literal("video")])
 export const NodeFormSchema = z.object({
   title: z.string().min(2, {
     message: "Title must be at least 2 characters.",
   }),
-  value: nodeValue,
   id: z.string(),
   folio_id: z.string(),
-  wasEdited: z.boolean().default(false),
-  wasRemoved: z.boolean().default(false),
-  isNew: z.boolean().default(true),
-  type: nodeTypes
+  type: nodeTypes,
+  ...def
 });
 export type iNodeSchema = z.infer<typeof NodeFormSchema>;
 
@@ -26,8 +31,7 @@ export type iTextNodeValueSchema = z.infer<typeof textNodeSchema>
 export type iGalleryNodeValueSchema = z.infer<typeof galleryNodeSchema>
 export type iVideoNodeValueSchema = z.infer<typeof videoNodeSchema>
 
-export type iNodeValueSchema = iTextNodeValueSchema | iGalleryNodeValueSchema  | iVideoNodeValueSchema
-export type iNodeValueSchemaWithArr = iTextNodeValueSchema | iGalleryNodeValueSchema[ ] | iVideoNodeValueSchema
+export type iNodeValueSchema = iGalleryNodeValueSchema | iTextNodeValueSchema  | iVideoNodeValueSchema
 
 export type iTextValueDataSchema = z.infer<typeof textNodeSchemaData>
 export type iGalleryValueDataSchema = z.infer<typeof galleryNodeSchemaData>

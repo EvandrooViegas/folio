@@ -15,12 +15,13 @@ import NodeValue from "./NodeValue";
 import z from "zod";
 import { useModalContext } from "@/components/ui/modal";
 import { useFolioFormContext } from "./context/FolioFormContext";
-import { NodeContext, type SetNewNode } from "./context/NodeContext";
+import { NodeContext } from "./context/NodeContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   NodeFormSchema,
   iNodeSchema,
+  iNodeTypes,
   iNodeValueDataSchema,
   iNodeValueSchema,
   iTextNodeValueSchema,
@@ -68,12 +69,12 @@ export default function NodeForm(props: Props) {
   } satisfies iNodeSchema);
 
   const defNode = isEditing ? propsNode : initialNode.current;
+
   const nodeForm = useForm<iNodeSchema>({
     resolver: zodResolver(NodeFormSchema),
     //@ts-ignore
     defaultValues: defNode,
   });
-  const currNodeForm = nodeForm.getValues();
 
   function onSubmit() {
     let newNode = nodeForm.getValues();
@@ -90,37 +91,42 @@ export default function NodeForm(props: Props) {
     closeModal();
   }
 
-  const setNodeValue = (node: SetNewNode) => {
+  const setNodeDataValue = (
+    nData: iNodeValueDataSchema,
+    prevData: iNodeValueDataSchema,
+    type: iNodeTypes
+  ) => {
     // @ts-ignore
-    let nNode = node as iNodeValueSchema;
-    if (Array.isArray(node.data)) {
-      nNode.data = node.data.map((item) => {
-        const prevValue = node.data.find((i) => i.id === item.id) as unknown;
+    let data = nData;
+
+    if (Array.isArray(data)) {
+      data = data.map((item, idx) => {
+        const prevValue = Array.isArray(prevData) ? prevData[idx] : undefined;
         if (!prevValue) {
-          return { ...item, wasEdited: true, isNew: isNewNode };
+          return { ...item, wasEdited: true };
         }
-        const isEqual = isNodeValueDataEqual(item as unknown, prevValue);
-        return { ...item, wasEdited: !isEqual, isNew: isNewNode };
+        const isEqual = isNodeValueDataEqual(
+          item as unknown as iNodeValueDataSchema,
+          prevValue as unknown as iNodeValueDataSchema
+        );
+        return { ...item, wasEdited: !isEqual };
       });
     } else {
-      const isEqual = isNodeValueDataEqual(
-        nNode.data as unknown as iNodeValueDataSchema,
-        currNodeForm.value.data as unknown as iNodeValueDataSchema
-      );
-      nNode.data.wasEdited = !isEqual;
-      nNode.data.isNew = isNewNode;
+      const isEqual = isNodeValueDataEqual(nData, prevData);
+      data.wasEdited = !isEqual;
     }
-
-
-    nNode.node_id = id.current;
-
-    nodeForm.setValue("value", nNode);
+    const nNodeValue = {
+      type,
+      data,
+      node_id: id.current,
+    } satisfies iNodeValueSchema;
+    nodeForm.setValue("value", nNodeValue);
   };
 
   return (
     <NodeContext.Provider
       value={{
-        setNodeValue,
+        setNodeDataValue,
         form: nodeForm,
         node: nodeForm.getValues(),
         isEditing: !!propsNode,

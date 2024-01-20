@@ -20,6 +20,7 @@ export const galleryNodeSchemaData = createNodeValueDataSchema({
     .optional(),
   isImageFileLocal: z.boolean(),
 });
+const galleryNodeSchemaDataAsArray = galleryNodeSchemaData.array();
 
 export const galleryNodeSchema = createNodeValueSchema(
   "gallery",
@@ -27,8 +28,10 @@ export const galleryNodeSchema = createNodeValueSchema(
   galleryNodeSchemaData
 );
 
-export const galleryNodeSchemaAsArray = createNodeValueSchema(
+export const galleryNodeSchemaAsArray = createNodeValueSchema<
+  typeof galleryNodeSchemaDataAsArray
+>(
   "gallery",
   //@ts-ignore
-  galleryNodeSchemaData.array()
+  galleryNodeSchemaDataAsArray
 );

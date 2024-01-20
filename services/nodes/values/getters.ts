@@ -88,7 +88,6 @@ export async function getValuesList(
     }));
     else return valuesList.push(value);
   });
-  console.log(valuesList)
   const p = valuesList.map(async (value) => {
     const transformedValue = await transformNodeValueToInsert(value);
     const opt = {

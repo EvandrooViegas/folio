@@ -24,8 +24,9 @@ import { useNodeValueDataContext } from "../context";
 
 export default function Gallery() {
   const [isLoading, setIsLoading] = useState(false);
-  const { setNodeValue } = useNodeContext();
-  const { initialNodeData } = useNodeValueDataContext<iGalleryValueDataSchema[]>()
+  const { setNodeDataValue } = useNodeContext();
+  const { initialNodeData } =
+    useNodeValueDataContext<iGalleryValueDataSchema[]>();
 
   const [previewImages, setPreviewImages] = useState(initialNodeData);
 
@@ -39,7 +40,7 @@ export default function Gallery() {
       title: "",
       description: "",
       isNew: true,
-      wasEdited: false
+      wasEdited: false,
     },
   });
 
@@ -50,7 +51,7 @@ export default function Gallery() {
     imageForm.setValue("description", image.description);
     imageForm.setValue("title", image.title);
     imageForm.setValue("url", image.url);
-    imageForm.setValue("isNew", false);
+    imageForm.setValue("isNew", image.isNew);
     imageForm.setValue("wasEdited", true);
   };
 
@@ -68,9 +69,9 @@ export default function Gallery() {
       imageForm.setValue("image", img);
       imageForm.setValue("isImageFileLocal", true);
 
-      if (isEditingImage) return 
-        imageForm.setValue("id", crypto.randomUUID());
-        setIsCreatingImage(true);
+      if (isEditingImage) return;
+      imageForm.setValue("id", crypto.randomUUID());
+      setIsCreatingImage(true);
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +81,7 @@ export default function Gallery() {
     nImages: iGalleryValueDataSchema[],
     reset: boolean = true
   ) => {
-    setNodeValue({ type: "gallery", data: nImages });
+    setNodeDataValue(nImages, initialNodeData, "gallery");
     setPreviewImages(nImages);
     if (reset) {
       cancel();
@@ -89,7 +90,11 @@ export default function Gallery() {
   };
 
   const removeImage = (id: string) => {
-    const filtredList = previewImages.filter((img) => img.id !== id);
+    const filtredList = previewImages.map((img) =>
+      img.id === id
+        ? ({ ...img, wasRemoved: true } satisfies iGalleryValueDataSchema)
+        : img
+    );
     setNewImages(filtredList);
   };
   const handleAddImage = () => {
@@ -100,8 +105,7 @@ export default function Gallery() {
 
   const handleEditImage = () => {
     const nImage = imageForm.getValues();
-    const filtredImages = previewImages.filter((img) => img.id !== nImage.id);
-    filtredImages.push(nImage);
+    const filtredImages = previewImages.map((img) => img.id === nImage.id ? nImage : img);
     setNewImages(filtredImages);
   };
 
@@ -132,7 +136,7 @@ export default function Gallery() {
         </FormItem>
       </div>
       <div className="grid grid-cols-2 gap-4 w-full">
-        {previewImages.map((image) => (
+        {previewImages.filter(img => !img.wasRemoved).map((image) => (
           <div
             className="group relative flex flex-col gap-0.5 border border-dashed border-neutral-300 p-3 rounded"
             key={image.id}

@@ -36,13 +36,14 @@ export function transformNodes(nodes: iNode[]): iNodeSchema[] {
 
 const getValueDataBase = <T>(
   node: iNode,
-  data: Omit<Omit<Omit<Omit<T, "isNew">, "wasEdited">, "wasRemoved">, "id">
+  data: Omit<Omit<Omit<Omit<T, "isNew">, "wasEdited">, "wasRemoved">, "id">,
+  idx?: number
 ) => {
   const base: iNodeValueDataBase = {
     isNew: false,
     wasEdited: false,
     wasRemoved: false,
-    id: node.value.id,
+    id: idx !== undefined ? node.value[idx].id : node.value.id,
   };
   return {
     ...base,
@@ -58,14 +59,14 @@ function getNodeDataByType(node: iNode): iNodeValueDataSchema {
       });
     case "gallery":
       const galleryValue = (node.value as unknown as iGalleryNode[]) || [];
-      return galleryValue.map((i) =>
+      return galleryValue.map((i, idx) =>
         getValueDataBase<iGalleryValueDataSchema>(node, {
           url: i.url,
           description: i.description || "",
           image: null,
           title: i.title || "",
           isImageFileLocal: false,
-        })
+        }, idx)
       );
 
     case "video":

@@ -66,7 +66,6 @@ export default function FolioForm(props?: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   const setFormNode = (nNodes: iNodeSchema[]) => {
-    console.log(nNodes)
     setNodes(nNodes);
     nodesFieldArr.replace(nNodes);
   };
@@ -94,9 +93,8 @@ export default function FolioForm(props?: Props) {
   };
   async function onSubmit(data: Folio) {
     setIsLoading(true);
-
-    await createOrUpdateFolio(data, isEditing);
     console.log(nodes)
+    await createOrUpdateFolio(data, isEditing);
     await createOrUpdateNodes(nodes);
 
     toast.success(`Folio ${isEditing ? "Edited" : "Created"} successfully!`);
