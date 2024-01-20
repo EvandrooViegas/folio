@@ -24,20 +24,19 @@ export const transformNodeValueToInsert = async (
         node_id: val.node_id,
       } as iTextNodeInsert;
     case "gallery":
-      const galleryData = val.data as unknown as iGalleryValueDataSchema[];
-      const pr = galleryData.map(async (i) => {
-        const url = await getNodeFileURL("gallery", i);
+      const galleryData = val.data as unknown as iGalleryValueDataSchema;
+
+        const url = await getNodeFileURL("gallery", galleryData);
         return {
-          id: i.id,
+          id: galleryData.id,
           type: "gallery",
           node_id: val.node_id,
-          description: i.description || "",
-          title: i.title || "",
+          description: galleryData.description || "",
+          title: galleryData.title || "",
           url,
         } as iGalleryNodeInsert;
-      });
 
-      return await Promise.all(pr);
+
     case "video": {
       const videoData = val.data as iVideoValueDataSchema;
       const url = await getNodeFileURL("video", videoData);

@@ -78,10 +78,17 @@ type InsertNode = iNodeValueInsert & Opt;
 export async function getValuesList(
   values: iNodeValueSchema[]
 ): Promise<InsertNode[]> {
-  const valuesList = values.map(value => {
-    if (Array.isArray(value)) return value;
-    else return value;
+  const valuesList = [] as iNodeValueSchema[]
+
+  values.forEach(value => {
+    if (Array.isArray(value.data)) value.data.forEach(data => valuesList.push({
+      data: data,
+      node_id: value.node_id,
+      type: value.type
+    }));
+    else return valuesList.push(value);
   });
+  console.log(valuesList)
   const p = valuesList.map(async (value) => {
     const transformedValue = await transformNodeValueToInsert(value);
     const opt = {

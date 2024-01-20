@@ -25,7 +25,9 @@ export type iNodeSchema = z.infer<typeof NodeFormSchema>;
 export type iTextNodeValueSchema = z.infer<typeof textNodeSchema>
 export type iGalleryNodeValueSchema = z.infer<typeof galleryNodeSchema>
 export type iVideoNodeValueSchema = z.infer<typeof videoNodeSchema>
+
 export type iNodeValueSchema = iTextNodeValueSchema | iGalleryNodeValueSchema  | iVideoNodeValueSchema
+export type iNodeValueSchemaWithArr = iTextNodeValueSchema | iGalleryNodeValueSchema[ ] | iVideoNodeValueSchema
 
 export type iTextValueDataSchema = z.infer<typeof textNodeSchemaData>
 export type iGalleryValueDataSchema = z.infer<typeof galleryNodeSchemaData>
