@@ -1,6 +1,4 @@
 import supabase from "@/lib/supabase";
-import { editNodeImage, uploadNodeImage } from "@/services/storage/images";
-import { editNodeVideo, uploadNodeVideo } from "@/services/storage/videos";
 import {
   iGalleryValueDataSchema,
   iNodeTypes,
@@ -9,10 +7,10 @@ import {
   iVideoValueDataSchema,
 } from "@/types/nodes";
 import { transformNodeValueToInsert } from "./transformers";
+import { Folders, editNodeMedia, uploadNodeMedia } from "@/services/storage";
 
 type Data = iVideoValueDataSchema | iGalleryValueDataSchema;
-
-export async function getNodeFileURL(type: "video" | "gallery", data: Data) {
+export async function getNodeFileURL(type: Folders, data: Data, folioID: string) {
   const isVideo = type === "video";
   const isLocal = isVideo
     ? (data as iVideoValueDataSchema).isVideoFileLocal
@@ -35,11 +33,9 @@ export async function getNodeFileURL(type: "video" | "gallery", data: Data) {
         .single();
       const prevURL = prevValue?.url!;
       if (!prevURL) return;
-      if (type === "gallery") return await editNodeImage(prevURL, file);
-      else if (type === "video") return await editNodeVideo(prevURL, file);
+      editNodeMedia(file, type, folioID)
     } else {
-      if (type === "gallery") return await uploadNodeImage(file);
-      else if (type === "video") return await uploadNodeVideo(file);
+      uploadNodeMedia(file, type, folioID)
     }
   } else {
     return url;
@@ -77,7 +73,8 @@ type Opt = { isEditing: boolean; shouldBeRemoved: boolean };
 type InsertNode = iNodeValueInsert & Opt;
 
 export async function getValuesList(
-  values: iNodeValueSchema[]
+  values: iNodeValueSchema[],
+  folioID: string
 ): Promise<InsertNode[]> {
   const valuesList = [] as iNodeValueSchema[]
 
@@ -90,7 +87,7 @@ export async function getValuesList(
     else return valuesList.push(value);
   });
   const p = valuesList.map(async (value) => {
-    const transformedValue = await transformNodeValueToInsert(value);
+    const transformedValue = await transformNodeValueToInsert(value, folioID);
     const rest = {
       isEditing: (!value.data.isNew  && value.data.wasEdited) || true,
       shouldBeRemoved: value.data.wasRemoved || false,

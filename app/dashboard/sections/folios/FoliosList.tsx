@@ -1,4 +1,4 @@
-import { fetchUserFolios } from "@/services/folio";
+import { deleteFolio, fetchUserFolios } from "@/services/folio";
 import React from "react";
 import {
   Card,
@@ -11,14 +11,7 @@ import { Button } from "@/components/ui/button";
 import { date } from "@/utils/date";
 import Link from "next/link";
 import Icon from "@/components/ui/Icon";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import DropdownMenu from "./DropdownMenu";
 
 export default async function FoliosList() {
   const folios = await fetchUserFolios();
@@ -46,16 +39,7 @@ export default async function FoliosList() {
               </div>
             </div>
             <div className="absolute right-4 top-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger />
-                <DropdownMenuContent className="w-56">
-                  <DropdownMenuLabel>My Folio</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Link href={`/dashboard/folio/edit/${folio.id}`}>Edit</Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+             <DropdownMenu id={folio.id} />
             </div>
           </CardContent>
         </Card>

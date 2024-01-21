@@ -7,8 +7,8 @@ import { transformNodeToInsert } from "./transformers";
 export async function createOrUpdateNodes(nodes: iNodeSchema[]) {
   const userID = await getAuthedUserID();
   if (!userID) return;
+  const folioID = nodes[0].folio_id
   const pr = nodes.map((node) => {
-   
     const transformedNode = transformNodeToInsert(node, userID);
     const isEditing = node.isNew === false && node.wasEdited
     const shouldBeRemoved = node.wasRemoved
@@ -24,5 +24,5 @@ export async function createOrUpdateNodes(nodes: iNodeSchema[]) {
   await Promise.all(pr);
   const values = nodes.map((node) => node.value)
   //@ts-ignore
-  await insertOrEditNodesValues(values);
+  await insertOrEditNodesValues(values, folioID);
 }

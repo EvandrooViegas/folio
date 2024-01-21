@@ -3,6 +3,7 @@ import { iCompleteFolio, iFolio, iNewFolio } from "@/types/folio";
 import { getAuthedUserID } from "../user";
 import { getNodesByFolioID } from "../nodes/getters";
 import removeObjProperties from "@/utils/removeObjProperties";
+import { deleteFolioMedia } from "../storage";
 
 export async function createOrUpdateFolio(
   folio: Omit<iNewFolio, "user_id">,
@@ -16,17 +17,19 @@ export async function createOrUpdateFolio(
     folio as iCompleteFolio
   );
 
-  transformedFolio.user_id = userID
+  transformedFolio.user_id = userID;
   if (isEditing) {
-    await supabase
-      .from("folios")
-      .update(transformedFolio)
-      .eq("id", folio.id);
+    await supabase.from("folios").update(transformedFolio).eq("id", folio.id);
   } else {
-    await supabase
-      .from("folios")
-      .insert(transformedFolio);
+    await supabase.from("folios").insert(transformedFolio);
   }
+}
+
+export async function deleteFolio(ID: string) {
+  return await Promise.all([
+    supabase.from("folios").delete().eq("id", ID),
+    deleteFolioMedia(ID),
+  ]);
 }
 
 export async function fetchUserFolios() {

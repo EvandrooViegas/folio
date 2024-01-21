@@ -3,8 +3,8 @@ import { iNodeValueSchema } from "@/types/nodes";
 import { getTableName, getValuesList } from "./getters";
 import removeObjProperties from "@/utils/removeObjProperties";
 
-export async function insertOrEditNodesValues(values: iNodeValueSchema[]) {
-  const list = await getValuesList(values);
+export async function insertOrEditNodesValues(values: iNodeValueSchema[], folioID: string) {
+  const list = await getValuesList(values, folioID);
   console.log(list)
   const pr = list.map(async(value) => {
     const from = getTableName(value.type);

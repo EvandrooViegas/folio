@@ -11,7 +11,8 @@ import {
 import { getNodeFileURL } from "./getters";
 
 export const transformNodeValueToInsert = async (
-  val: iNodeValueSchema
+  val: iNodeValueSchema,
+  folioID: string
 ): Promise<iNodeValueInsert | iNodeValueInsert[] | undefined>  => {
 
   switch (val.type) {
@@ -26,7 +27,7 @@ export const transformNodeValueToInsert = async (
     case "gallery":
       const galleryData = val.data as unknown as iGalleryValueDataSchema;
 
-        const url = await getNodeFileURL("gallery", galleryData);
+        const url = await getNodeFileURL("gallery", galleryData, folioID);
         return {
           id: galleryData.id,
           type: "gallery",
@@ -39,7 +40,7 @@ export const transformNodeValueToInsert = async (
 
     case "video": {
       const videoData = val.data as iVideoValueDataSchema;
-      const url = await getNodeFileURL("video", videoData);
+      const url = await getNodeFileURL("video", videoData, folioID);
       if (!url) return;
       return {
         id: videoData.id,
