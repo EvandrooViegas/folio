@@ -129,7 +129,7 @@ export default function NodeForm(props: Props) {
         setNodeDataValue,
         form: nodeForm,
         node: nodeForm.getValues(),
-        isEditing: !!propsNode,
+        isEditing,
       }}
     >
       <Form {...nodeForm}>

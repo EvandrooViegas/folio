@@ -5,7 +5,8 @@ import removeObjProperties from "@/utils/removeObjProperties";
 
 export async function insertOrEditNodesValues(values: iNodeValueSchema[]) {
   const list = await getValuesList(values);
-  const pr = list.map((value) => {
+  console.log(list)
+  const pr = list.map(async(value) => {
     const from = getTableName(value.type);
     if (!from) return;
 
@@ -19,7 +20,7 @@ export async function insertOrEditNodesValues(values: iNodeValueSchema[]) {
       return supabase.from(from).delete().eq("id", value.id)
     }
     if (isEditing) {
-      return supabase.from(from).update(valueToInsert).eq("id", value.id);
+        return  supabase.from(from).update(valueToInsert).eq("id", value.id)
     } else {
       return supabase.from(from).insert(valueToInsert);
     }

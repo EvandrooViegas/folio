@@ -22,7 +22,8 @@ export async function getNodeFileURL(type: "video" | "gallery", data: Data) {
     : (data as iGalleryValueDataSchema).image;
   const url = data.url;
   const id = data.id;
-  const isEditing = data.isNew === false && data.wasEdited;
+
+  const isEditing = !data.isNew  && data.wasEdited;
   if (isLocal) {
     if (isEditing) {
       const from = getTableName(type);
@@ -90,11 +91,11 @@ export async function getValuesList(
   });
   const p = valuesList.map(async (value) => {
     const transformedValue = await transformNodeValueToInsert(value);
-    const opt = {
-      isEditing: value.data.isNew === false && value.data.wasEdited === true,
+    const rest = {
+      isEditing: (!value.data.isNew  && value.data.wasEdited) || true,
       shouldBeRemoved: value.data.wasRemoved || false,
     } satisfies Opt;
-    return { ...transformedValue, ...opt };
+    return { ...transformedValue, ...rest };
   });
 
   return await Promise.all(p);

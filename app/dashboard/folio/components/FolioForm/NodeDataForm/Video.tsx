@@ -21,8 +21,7 @@ export default function Video() {
   const { setNodeDataValue } = useNodeContext();
 
   const { initialNodeData } = useNodeValueDataContext<iVideoValueDataSchema>();
-
-  const [url, setUrl] = useState(initialNodeData.url);
+  const [youtubeVideoURL, setYoutubeVideoURL] = useState(initialNodeData.url);
 
   const [video, setVideo] = useState(initialNodeData);
   const onFileUpload = async (e: React.FormEvent<HTMLInputElement>) => {
@@ -56,7 +55,7 @@ export default function Video() {
       id: initialNodeData.id,
       isVideoFileLocal: false,
       provider: "youtube",
-      url: url,
+      url: youtubeVideoURL,
     } as iVideoValueDataSchema
     setNodeDataValue(nVideoData, initialNodeData, "video")
   }
@@ -72,9 +71,9 @@ export default function Video() {
             <div className="space-y-2">
               <Input
                 placeholder="Enter Youtube Video URL"
-                onChange={(e) => setUrl(e.target.value)}
+                onChange={(e) => setYoutubeVideoURL(e.target.value)}
               />
-              {url && <YoutubeVideo onReady={onYoutubeVideoLoad} url={url} />}
+              {youtubeVideoURL && <YoutubeVideo onReady={onYoutubeVideoLoad} url={youtubeVideoURL} />}
             </div>
           </TabsContent>
           <TabsContent value={providers.local}>
