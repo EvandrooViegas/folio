@@ -22,9 +22,6 @@ export default function Video() {
 
   const { initialNodeData } = useNodeValueDataContext<iVideoValueDataSchema>();
 
-  const [provider, setProvider] = useState(
-    initialNodeData.provider || (providers.youtube as iVideoProvider)
-  );
   const [url, setUrl] = useState(initialNodeData.url);
 
   const [video, setVideo] = useState(initialNodeData);
@@ -54,7 +51,15 @@ export default function Video() {
       setIsLoading(false);
     }
   };
-
+  const onYoutubeVideoLoad = () => {
+    const nVideoData = {
+      id: initialNodeData.id,
+      isVideoFileLocal: false,
+      provider: "youtube",
+      url: url,
+    } as iVideoValueDataSchema
+    setNodeDataValue(nVideoData, initialNodeData, "video")
+  }
   return (
     <div className="flex flex-col gap-2">
       <div>
@@ -63,38 +68,40 @@ export default function Video() {
             <TabsTrigger value={providers.youtube}>Youtube</TabsTrigger>
             <TabsTrigger value={providers.local}>Local</TabsTrigger>
           </TabsList>
-          <TabsContent value={providers.youtube} className="space-y-2">
-            <div>
+          <TabsContent value={providers.youtube}>
+            <div className="space-y-2">
               <Input
                 placeholder="Enter Youtube Video URL"
                 onChange={(e) => setUrl(e.target.value)}
               />
-              {url && <YoutubeVideo url={url} />}
+              {url && <YoutubeVideo onReady={onYoutubeVideoLoad} url={url} />}
             </div>
           </TabsContent>
           <TabsContent value={providers.local}>
-            <div>
-              <FormLabel>Upload a image</FormLabel>
+            <div className="space-y-2">
               <Input
                 id="video"
                 type="file"
-                label="Video"
+                label="Upload a video"
                 accept="video/*"
                 onFileUpload={onFileUpload}
                 isLoading={isLoading}
               />
+            {video.url ? (
+              <div className="flex flex-col gap-2" key={video.url}>
+                <video
+                  className="w-full max-w-[500px] mx-auto aspect-video"
+                  controls
+                >
+                  <source src={video.url} />
+                  <p>Couldnt load the video</p>
+                </video>
+              </div>
+            ) : null}
             </div>
           </TabsContent>
         </Tabs>
       </div>
-      {video.url ? (
-        <div className="flex flex-col gap-2" key={video.url}>
-          <video className="w-full max-w-[500px] mx-auto aspect-video" controls>
-            <source src={video.url} />
-            <p>Couldnt load the video</p>
-          </video>
-        </div>
-      ) : null}
     </div>
   );
 }
